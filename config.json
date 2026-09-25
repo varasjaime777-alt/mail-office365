@@ -1,4 +1,4 @@
 {
-  "discordWebhook": "",
+  "discordWebhook": "https://discord.com/api/webhooks/REEMPLAZAR/TU_TOKEN",
   "adminPassword": "admin123"
 }
