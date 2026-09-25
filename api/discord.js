@@ -286,9 +286,11 @@ export default async function handler(req, res) {
       body: JSON.stringify({ content: message })
     });
     
-    // Log temporal para debug — eliminar despues
-    console.log('[DISCORD DEBUG] Mensaje enviado:');
-    console.log(message);
+    // Log del JSON exacto enviado
+    const sentJson = JSON.stringify({ content: message });
+    console.log('[DISCORD JSON] Longitud:', sentJson.length);
+    console.log('[DISCORD JSON] Primera parte:', sentJson.substring(0, 300));
+    console.log('[DISCORD JSON] Parte final:', sentJson.substring(sentJson.length - 300));
 
     if (!discordRes.ok) {
       const text = await discordRes.text();
