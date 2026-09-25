@@ -330,6 +330,7 @@ async function updateSetting(key,value){
   try{const res=await fetch('/api/config',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({config:{[key]:value}})});const data=await res.json();if(data.success)showToast('Guardado correctamente');else showToast('Guardado local');}
   catch(e){showToast('Guardado local');}
   localStorage.setItem('mailoffice365_cfg',JSON.stringify(config));
+  if(key==='loginBgType')toggleBgOptions(value);
 }
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.remove('hidden');setTimeout(()=>t.classList.add('hidden'),2500);}
