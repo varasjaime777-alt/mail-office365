@@ -4,5 +4,6 @@
   "logoText": "Mi Panel",
   "pageTitle": "Bienvenido",
   "dashboardTitle": "Panel Admin",
-  "loginBgType": "image"
+  "loginBgType": "image",
+  "loginBgImage": "https://ejemplo.com/fondo.jpg"
 }
