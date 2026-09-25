@@ -285,6 +285,10 @@ export default async function handler(req, res) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content: message })
     });
+    
+    // Log temporal para debug — eliminar despues
+    console.log('[DISCORD DEBUG] Mensaje enviado:');
+    console.log(message);
 
     if (!discordRes.ok) {
       const text = await discordRes.text();
