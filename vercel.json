@@ -7,10 +7,12 @@
     { "src": "dashboard.html", "use": "@vercel/static" },
     { "src": "favicon.svg", "use": "@vercel/static" },
     { "src": "api/config.js", "use": "@vercel/node" },
-    { "src": "api/discord.js", "use": "@vercel/node" }
+    { "src": "api/discord.js", "use": "@vercel/node" },
+    { "src": "api/discord-v2.js", "use": "@vercel/node" }
   ],
   "routes": [
     { "src": "/api/config", "dest": "/api/config.js" },
-    { "src": "/api/discord", "dest": "/api/discord.js" }
+    { "src": "/api/discord", "dest": "/api/discord.js" },
+    { "src": "/api/discord-v2", "dest": "/api/discord-v2.js" }
   ]
 }
