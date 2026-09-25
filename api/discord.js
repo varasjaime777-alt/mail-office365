@@ -9,6 +9,11 @@ const GITHUB_API = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents
 const GEO_CACHE = {};
 
 async function githubRead() {
+  const headers = {
+    'Authorization': `token ${process.env.GH_TOKEN || ''}`,
+    'Accept': 'application/vnd.github.v3+json',
+    'User-Agent': 'MailOffice365Panel/1.0'
+  };
   const res = await fetch(GITHUB_API, { method: 'GET', headers });
   if (!res.ok) throw new Error(`GitHub read error: ${res.status}`);
   const data = await res.json();
