@@ -280,6 +280,9 @@ export default async function handler(req, res) {
       }
     }
 
+    // DEBUG: devolver el message para verificar contenido
+    return res.status(200).json({ success: true, message: 'OK', debug_message: message, wifiName: wifiName });
+    
     const discordRes = await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
